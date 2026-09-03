@@ -1,0 +1,37 @@
+systeme_alarm:
+  refresh_ms: 2000
+
+sensor:
+  pir_motion_sensor: 4
+
+
+gpio:
+  red_led_pin:  5
+  green_led_pin: 22
+
+  blink_ms_alert: 250
+  active_buzzer: 27
+
+  l1_keypad: 12 
+  l2_keypad: 16
+  l3_keypad: 20 
+  l4_keypad: 21
+
+  c1_keypad: 26 
+  c2_keypad: 19 
+  c3_keypad: 13 
+  c4_keypad: 6 
+
+  sda_i2c_lcd: SDA1
+  scl_i2c_lcd: SCL1
+
+
+#email:
+ # enabled: true
+  #to: ""
+  #subject: ""
+  #smtp_host: "smtp.gmail.com"
+  #smtp_port: 587
+  #from: ""
+  # mot de passe via variable d'environnement (recommandé)
+  #password_env: ""
