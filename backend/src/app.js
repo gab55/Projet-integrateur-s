@@ -1,3 +1,6 @@
+require("dotenv").config();
+
+
 const express = require("express");
 const cors = require("cors");
 
@@ -9,6 +12,8 @@ app.use(express.json());
 app.get('/',(req,res) =>{
     res.send("Test sur le serveur");
 })
+
+
 
 module.exports = app;
 
