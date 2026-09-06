@@ -12,10 +12,10 @@ gpio:
   blink_ms_alert: 250
   active_buzzer: 27
 
-  l1_keypad: 12 
-  l2_keypad: 16
-  l3_keypad: 20 
-  l4_keypad: 21
+  r1_keypad: 12 
+  r2_keypad: 16
+  r3_keypad: 20 
+  r4_keypad: 21
 
   c1_keypad: 26 
   c2_keypad: 19 
