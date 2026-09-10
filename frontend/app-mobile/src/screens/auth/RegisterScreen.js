@@ -1,18 +1,19 @@
 
-import React from 'react';
-import {View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import React, {useState} from 'react';
+import { Text, KeyboardAvoidingView, Platform } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {globalStyles} from "../../styles";
 import {useNavigation} from "@react-navigation/native";
 import {useAuth} from "../../context/AuthContext";
 import {Card} from "../../components/Card";
-import {InputEmail, InputName, InputNip, InputNumber, InputPassword} from "../../components/InputBoxes";
+import {InputEmail, InputName, InputNip, InputPassword} from "../../components/InputBoxes";
 import {AppButton, TextButton } from "../../components/AppButton";
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 export default function RegisterScreen(){
     const { signUp } = useAuth();
+    const [errorMessage, setErrorMessage] = useState('');
+
     const navigation = useNavigation();
 
     const [formData, setFormData] = React.useState({
@@ -63,13 +64,11 @@ export default function RegisterScreen(){
     }
 
     const handleSubmit = async () => {
-
         if (validateRegisterForm()) {
             try {
                 await signUp(formData);
             } catch (serverError) {
-                console.error('Error during registration:', serverError);
-                setError({ server: `${serverError.message}` });
+                setErrorMessage({ server: `${serverError.message}` });
             }
         }
     }
@@ -125,7 +124,7 @@ export default function RegisterScreen(){
                     placeholder={'Nip'}
                 />
                 {error.nip && <Text style={globalStyles.error}>{error.nip}</Text>}
-
+                {errorMessage && <Text style={globalStyles.error}>{errorMessage}</Text>}
                 <AppButton text={'Enregistrer'} onPress={handleSubmit} />
                 <TextButton
                     text={'Retourner'}

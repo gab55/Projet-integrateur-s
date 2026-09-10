@@ -14,9 +14,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
     async(config) => {
-    if (config.url.includes('/auth/login') || config.url.includes('/auth/register')) {
+
+    if (config.url === '/auth/login' || config.url === '/auth/register') {
         return config;
     }
+
     const token = await SecureStore.getItemAsync('userToken');
 
     if (token) {

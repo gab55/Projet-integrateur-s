@@ -1,18 +1,13 @@
 
-import React, {useContext, useEffect, useState} from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import {View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Button, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, ActivityIndicator} from 'react-native';
 import {globalStyles} from "../../styles";
 import { useAuth } from '../../context/AuthContext';
 import {Card} from "../../components/Card";
-import {AppButton, TextButton } from "../../components/AppButton";
-import {SafeAreaView} from "react-native-safe-area-context";
-
-
+import { TextButton } from "../../components/AppButton";
 
 export default function ProfileScreen(){
     const { signOut, me } = useAuth();
-    const { userToken, user } = useContext(AuthContext);
 
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,7 +15,7 @@ export default function ProfileScreen(){
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const data = await me(userToken);
+                const data = await me();
                 setProfileData(data);
             } catch (error) {
                 console.error("Failed to fetch profile data", error);
@@ -29,10 +24,10 @@ export default function ProfileScreen(){
             }
         };
 
-            if (userToken) {
-                fetchProfile();
-            }
-        }, [userToken]);
+        if (me) {
+            fetchProfile();
+        }
+        }, [me]);
 
 
     if (loading) {
@@ -79,4 +74,3 @@ export default function ProfileScreen(){
     );
 }
 
-const styles = StyleSheet.create({});
