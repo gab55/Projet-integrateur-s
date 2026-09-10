@@ -1,16 +1,12 @@
 import * as SecureStore from 'expo-secure-store';
-import {SERVERIP, SERVERPORT} from '../../config';
 import api from '../api/apiClient';
-import {createContext} from 'react';
 
-const AuthContext = createContext();
 
 export const createAuthActions= (dispatch) => {
     const actions = {
-        me: async (token) => {
+        me: async () => {
             /**
              * Fetch user data
-             * @param {string} token - The authentication token.
              **/
             try {
                 const response = await api.get('/auth/me', {
@@ -73,14 +69,13 @@ export const createAuthActions= (dispatch) => {
              * @param {string} data.password - The user's password.
              **/
             try {
-                const response = await api.post(`http://${SERVERIP}:${SERVERPORT}/api/auth/register`, {
+                const response = await api.post(`/auth/register`, {
                     firstName: data.firstName,
                     name: data.name,
                     nip: data.nip,
                     email: data.email,
                     password: data.password,
                 });
-                const json = response.data;
                 console.log('Inscription Reussi ! Connexion automatique dans un moment');
                 await actions.signIn({
                     email: data.email,
@@ -91,6 +86,17 @@ export const createAuthActions= (dispatch) => {
                 throw error;
             }
         },
+        forgotPassword: async (data) => {
+            try {
+                const response = await api.post(`/auth/forgot-password`, {
+                    email: data.email,
+                });
+                console.log('Email de réinitialisation envoyé !');
+            } catch (error) {
+                console.error('Erreur lors de la demande de réinitialisation du mot de passe:', error.message);
+                throw error;
+            }
+        }
 }
     return actions;
 }
