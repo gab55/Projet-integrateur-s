@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, Button, Platform, KeyboardAvoidingView} from 'react-native';
+import {Text, Platform, KeyboardAvoidingView} from 'react-native';
 import {globalStyles} from "../../styles";
 import {useNavigation} from "@react-navigation/native";
 import {AuthContext} from "../../context/AuthContext";
@@ -10,26 +10,32 @@ import {SafeAreaView} from "react-native-safe-area-context";
 
 
 export default function ForgotPasswordScreen(){
-    const { signIn } = React.useContext(AuthContext);
+    const { forgotPassword } = React.useContext(AuthContext);
     const navigation = useNavigation();
     const [email, setEmail] = React.useState('');
     const [error, setError] = React.useState({});
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
 
     const validateForm = () => {
         let activeErrors = {};
-        if (!formData.email) activeErrors.email = "Le couriel est requis"
-        if (!formData.email.match(/^\S+@\S+\.\S+$/))
+        if (!email) activeErrors.email = "Le couriel est requis"
+        else if (!email.match(/^\S+@\S+\.\S+$/)) {
             activeErrors.email = "Adresse e-mail invalide"
+        }
 
         setError(activeErrors);
         return Object.keys(activeErrors).length === 0;
     }
 
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (validateForm()) {
-            return signIn(email);
+            try {
+                await forgotPassword({email});
+            } catch (error) {
+                setErrorMessage(error.message);
+            }
         }
     }
 
@@ -48,6 +54,8 @@ export default function ForgotPasswordScreen(){
                     onChangeText={setEmail}
                     placeholder={'Courriel'}
                 />
+                { error.email && <Text style={globalStyles.error}>{error.email}</Text>}
+                {errorMessage && <Text style={globalStyles.error}>{errorMessage}</Text>}
                 <AppButton text={'Enregistrer'} onPress={() => handleSubmit()} />
                 <AppButton
                     title={'Retourner'}
@@ -65,4 +73,3 @@ export default function ForgotPasswordScreen(){
 
 
 
-const styles = StyleSheet.create({});
