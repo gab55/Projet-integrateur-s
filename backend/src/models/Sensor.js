@@ -15,6 +15,10 @@ const SensorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    armed: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
