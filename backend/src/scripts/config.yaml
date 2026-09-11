@@ -25,13 +25,11 @@ gpio:
   sda_i2c_lcd: SDA1
   scl_i2c_lcd: SCL1
 
+acces:
+  password: "1234A"
 
-#email:
- # enabled: true
-  #to: ""
-  #subject: ""
-  #smtp_host: "smtp.gmail.com"
-  #smtp_port: 587
-  #from: ""
-  # mot de passe via variable d'environnement (recommandé)
-  #password_env: ""
+logging:
+  level: INFO                               # Type de log: INFO, DEBUG, WARNING, ERROR
+  file: "logs/systeme_alarm.log"            # Fichier de log
+  console: true                             # Permet d'afficher dans le terminal
+
