@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO     # Module GPIO
 from RPLCD.i2c import CharLCD   # Module pour l'affichage
 import time     # Module de délais
 import threading    # Module pour faire des exécutions en parallèle
+import logging
 
 
 class I2C_screen:
@@ -11,16 +12,20 @@ class I2C_screen:
     def __init__(self):
 
         # Initialise l'écran LCD
+        try:
 
-        self.lcd = CharLCD(     # Instance l'écran
-            i2c_expander="PCF8574",
-            address=0x27,
-            port=1,
-            cols=16,
-            rows=2
-        )
+            self.lcd = CharLCD(     # Instance l'écran
+                i2c_expander="PCF8574",
+                address=0x27,
+                port=1,
+                cols=16,
+                rows=2
+            )
 
-        self.lcd.clear()    # Effacer l'écran
+            self.lcd.clear()    # Effacer l'écran
+            logging.info("Afficheur réinitialisé")
+        except Exception as e:
+            logging.error(f"Erreur affichicage lors de la réinitialisation: {e}")
 
     def display_message(self, ligne1, ligne2=""):
 
@@ -36,40 +41,14 @@ class I2C_screen:
                 self.lcd.write_string(ligne2[:16])  # Écrire sur la deuxième 16 caractères maximum
 
         except Exception as e:  # Gérer les erreurs
+            logging.error(f"Erreur lors de l'affichage: {e}")
             print(f"Erreur lors de l'affichage: {e}")
 
     def cleanup(self):  # Fonction qui efface l'écran
-        self.lcd.clear()
-
-class Switch_State:  
-
-    # Classe qui gère l'état en passant d'armé à désarmé et de l'alarme active à inactive
-
-    def __init__(self):
-        # Initialisation de l'état
-
-        self.is_armed =False    # N'est pas armé au début
-        self.is_alarming = False # L'alarme n'est pas déclenchée au début
-
-    def arm(self):
-        # Fonction qui arme 
-        self.is_armed = True
-        print("Système armé")
-
-    def disarm(self):
-        # Fonction qui désarme 
-        self.is_armed = False
-        print("Système déasarmé")
-
-    def trigger_alarm(self):
-        # Fonction qui active l'alarme
-        self.is_alarming = True
-        print("Alarme déclenchée")
-
-    def stop_alarm(self):
-        # Fonction qui désactive l'alarme 
-        self.is_alarming = False
-        print("Alarme arrêtée")
+        try:
+            self.lcd.clear()
+        except:
+            pass
 
     
 
@@ -106,12 +85,14 @@ class Alarm:
 
         # Attendre 200ms que tout soit bien initialisé
         time.sleep(0.2)
+        logging.info("Alarme a été initialisée")
 
-    def son_touche(self):
+    def sound_key(self):
         # Fonction qui fait le son des touches presssées
         GPIO.output(self.active_buzzer, GPIO.HIGH)
         time.sleep(0.05)
         GPIO.output(self.active_buzzer, GPIO.LOW)
+        logging.debug(" Le bip du son de touche")
 
     def succes(self):
         # Gère l'armement et le désarmement
@@ -136,7 +117,7 @@ class Alarm:
                 self.screen.display_message("SYSTEME ARMEE")
 
 
-    def activer(self):
+    def activate(self):
 
         # Fonction pour l'activation de l'alarme: la led rouge clignote et le buzzer bip
 
@@ -164,7 +145,8 @@ class Alarm:
         self.switch_state.stop_alarm()    # L'état de l'alarme devient arrêtée
         
         if self.screen:
-            self.screen.display_message("ALARME ARRETEE!")
+            self.screen.display_message("ALARME ARRETEE! VEUILLEZ ENTRER LE CODE.")
+        logging.info("Alarme est prêt à être activée.")
         print("Alarme arrêtée")
 
     def cleanup(self):
@@ -172,6 +154,7 @@ class Alarm:
         GPIO.output(self.green_led_pin, GPIO.LOW)
         GPIO.output(self.active_buzzer, GPIO.LOW)
         GPIO.cleanup()
+        logging.info("L'alarme a été nettoyée")
 
 
 class MotionSensor:
@@ -194,6 +177,7 @@ class MotionSensor:
             GPIO.setmode(GPIO.BCM)
 
         GPIO.setup(self.sensor_pin, GPIO.IN)    # Configuration pour lire le capteur
+        logging.info(" Le capteur de détection de mouvement est initialisé")
 
         self.start_polling()    # Vérification en tout temps du capteur
 
@@ -232,23 +216,30 @@ class MotionSensor:
 
         if GPIO.input(self.sensor_pin):     # Pour détecter si il y a du mouvement
 
-            print("Mouvement détecté!")     # Si le capteur est HIGH signifie que le mouvement en détecté
-
             # Si le système doit être armé et si l'alarme n'est pas encore activé
             if self.switch_state.is_armed and not self.switch_state.is_alarming:
                 # Message afficher sur le moniteur
-                print("Alarme déclenché par mouvement")
+                print("Mouvement détecté! ALARME ARMÉE")
+                logging.warning("L'alarme a été déclenchée par le mouvement")
                 # Message afficher sur l'écran LCD
                 if self.screen:
-                    self.screen.display_message("MOUVEMENT DÉTECTÉ!")
-                # On déclenche l'alarme
-                self.alarm.activer()
+                    self.screen.display_message("MOUVEMENT DÉTECTÉ! ALARME ARMÉE")
 
+                # On déclenche l'alarme
+                self.alarm.activate()
+
+            else:
+                print("Mouvement détecté! ALARME DÉSARMÉE")
+                logging.info("L'alarme a été déclenchée par le mouvement(système désarmé)")
+                # Message afficher sur l'écran LCD
+                if self.screen:
+                    self.screen.display_message("MOUVEMENT DÉTECTÉ!ALARME DÉSARMÉE")
         else:
             # Quand le capteur ne détecte pas de mouvement
 
             # Message afficher sur le moniteur
             print("Aucun mouvement détecté.")
+            logging.debug(" Pas de mouvement détecté")
             # Message afficher sur l'écran LCD
             if self.screen:
                 self.screen.display_message("AUCUN MOUVEMENT")
@@ -300,6 +291,8 @@ class Keypad:
         for col in self.COLUMN_PINS:
             # On configure tous les colonnes à HIGH et on utilise le pull up down interne
             GPIO.setup(col, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+        logging.info(" Le clavier est initialisé")
 
     def scan_keys(self):
 
@@ -361,37 +354,6 @@ class Keypad:
 
         # On démarre le thread
         thread.start()
+        logging.info("L'écoute du clavier a commencée")
 
-
-class Controle_Acces:
-
-    # Classe qui gère le PIN pour armer ou désarmer l'alarme
-
-    def __init__(self, password):
-
-        # Initialise avec le bon mot de passe
-
-        self.password = password    # On stocke le bon mot de passe
-        self.code = ""      # On stocke que l'utilisateur va pressé
-
-    def add(self, key):
-
-        # Fonction qui permet d'ajouter une touche pressée au code
-
-        self.code += key    # Permet d'ajouter la touche pressée à la fin de chaque touche saisie
-
-    def erase(self):
-
-        # La fonction efface le code entré au complet
-
-        self.code = ""  
-
-    def verify(self):
-
-        # La fonction vérifie si c'est le bon code qui a été saisie
-
-        resultat = self.code == self.password
-        self.code = ""  # Efface le code en mémoire
-
-        return resultat     # Retourne Tue ou False dépendemment du résultat de la vérification
 
