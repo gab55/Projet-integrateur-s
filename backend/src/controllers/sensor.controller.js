@@ -1,4 +1,5 @@
 const Sensor = require("../models/Sensor");
+const SensorReading = require("../models/SensorReading");
 
 async function arm(req, res, next) {
   try {
@@ -68,4 +69,40 @@ async function status(req, res, next) {
   }
 }
 
-module.exports = { arm, disarm, status };
+async function addReading(req, res, next) {
+  try {
+    const sensor = await Sensor.findById(req.params.id);
+    if (!sensor) {
+      return res.status(404).json({ message: "Sensor not found" });
+    }
+
+    const reading = await SensorReading.create({
+      sensor: sensor.id,
+      value: req.body.value,
+    });
+
+    res.status(201).json({ reading });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getHistory(req, res, next) {
+  try {
+    const sensor = await Sensor.findById(req.params.id);
+    if (!sensor) {
+      return res.status(404).json({ message: "Sensor not found" });
+    }
+
+    const readings = await SensorReading.find({ sensor: sensor.id })
+      .sort({ recordedAt: -1 })
+      .limit(50);
+
+    res.json({ readings });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { arm, disarm, status, addReading, getHistory };
+
