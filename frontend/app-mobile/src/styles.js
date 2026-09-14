@@ -25,7 +25,7 @@ export const globalStyles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        marginTop: 40,
+        marginTop: 10,
         justifyContent: 'flex-start',
         alignContent: "flex-start"
     },
@@ -35,29 +35,39 @@ export const globalStyles = StyleSheet.create({
         width: '100%',
 
     },
+    scrollContainer: {
+        paddingBottom: 30,
+    },
     cardContainer: {
         justifyContent: 'center',
         alignItems: 'flex-start',
-        padding: 15,
+        padding: 0,
+        paddingHorizontal: 25,
         alignSelf: 'stretch',
-        height: "auto",
-
     },
     inlineContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 4,
-        minHeight: 44,
+
     },
-    rowContainer: {
+    listItemContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 16,
         paddingHorizontal: 20,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: '#ccc',
+        gap: 16,
+        backgroundColor: '#fff',
+    },
+    columnContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        gap: 16,
         backgroundColor: '#fff',
     },
     card: {
@@ -77,6 +87,40 @@ export const globalStyles = StyleSheet.create({
         shadowRadius: 4,
         // Shadow template for Android
         elevation: 3,
+    },
+    modal: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        padding: 20
+    },
+    circle: {
+        width: 40,
+        height: 40,
+        borderRadius: 40 / 2,
+    },
+
+    listPadding: {
+        paddingBottom: 20
+    },
+    horizontalScrollPadding: {
+        paddingHorizontal: 16,
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        width: '100%'
+    },
+    statusColumn: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 15,
+        minWidth: 60
+    },
+    infoColumn: {
+        flex: 1,
+        justifyContent: 'center'
     },
 
     // Typography Templates
@@ -168,5 +212,5 @@ export const globalStyles = StyleSheet.create({
         padding: 12,
         fontSize: 16,
         marginBottom: 12,
-    }
+    },
 });

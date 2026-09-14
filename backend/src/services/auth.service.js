@@ -38,4 +38,11 @@ async function verify(token) {
   return jwt.verify(token, secretKey);
 }
 
-module.exports = { register, login, verify };
+async function validateNip({userId, nip}) {
+    const user = await User.findById(userId).select("+nipHash");
+    if (!user) return false;
+    return bcrypt.compare(nip, user.nipHash);
+}
+
+
+module.exports = { register, login, verify, validateNip };

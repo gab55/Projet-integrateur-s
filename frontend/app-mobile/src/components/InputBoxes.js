@@ -1,8 +1,6 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, TextInput} from 'react-native';
+import {TextInput} from 'react-native';
 import {globalStyles} from "../styles";
-import DatePicker from 'react-datepicker';
-import { startOfWeek, endOfWeek, isSameDay, eachDayOfInterval } from 'date-fns';
 
 
 export function InputEmail({placeholder, onChangeText, value}) {
@@ -70,6 +68,20 @@ export function InputNumber({placeholder, onChangeText, value}) {
             keyboardType={'numeric'}
             style={globalStyles.textInput}
         />)}
+
+export function InputText({placeholder, onChangeText, value, height}) {
+    return (
+        <TextInput
+            placeholder={placeholder}
+            onChangeText={onChangeText}
+            value={value}
+            autoCapitalize={"sentences"}
+            autoCorrect={true}
+            keyboardType={'default'}
+            style={[globalStyles.textInput, {height: height}]}
+        />
+    )
+}
 
 // export function TimePicker() {
 //     return (
