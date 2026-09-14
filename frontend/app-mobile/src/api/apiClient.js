@@ -39,7 +39,7 @@ api.interceptors.response.use(
 
         if (error.response?.status === 401 && !reqURL.includes('/auth/login')) {
 
-            // Clear auth data and redirect to login
+            // When token is expired clear token and redirect to login
             await SecureStore.deleteItemAsync('userToken');
             if (onUnauthorized) {
                 onUnauthorized();
