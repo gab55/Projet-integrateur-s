@@ -1,7 +1,6 @@
-import {View, Text, FlatList} from 'react-native';
-import {COLORS, globalStyles} from "../../styles";
-import React, { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
+import {AppState, FlatList, ScrollView, Text, View} from 'react-native';
+import {globalStyles} from "../../styles";
+import React, {useEffect, useState} from 'react';
 import {settings} from "../../../config";
 import {Card} from "../../components/Card";
 import {useSensor, useSensorActions} from "../../context/SensorContext";
@@ -10,8 +9,8 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {TouchableSensorList} from "../../components/List";
 import {useNavigation} from "@react-navigation/native";
 import {TextButton} from "../../components/AppButton";
-import { formatToTime } from "../../components/utils";
-
+import {formatToTime} from "../../components/utils";
+import {AlertHistoryGraph} from "../../components/Graph";
 
 
 export default function DashScreen(){
@@ -20,12 +19,14 @@ export default function DashScreen(){
     const { sensors, isLoading } = useSensor() || { sensors: [], isLoading: true };
     const { alarms } = useAlert() || { alerts: [] };
     const SensorActions = useSensorActions();
-    const AlarmActions = useAlertActions();
+    const AlertActions = useAlertActions();
     const navigation = useNavigation();
+    const [daysBack, setDaysBack] = useState(14);
 
     useEffect(() => {
         SensorActions.sensorList();
-        AlarmActions.alertList();
+        AlertActions.alertList();
+        AlertActions.alertMetrics(daysBack);
 
     }, []);
 
@@ -38,8 +39,9 @@ export default function DashScreen(){
 
                 const rawSensors = await SensorActions.sensorList();
                 data.Sensor = (rawSensors || []).filter(sensor => sensor.armed === true).slice(0,3);
-                const rawAlerts = await AlarmActions.alertList  ();
+                const rawAlerts = await AlertActions.alertList  ();
                 data.Alerts = (rawAlerts || []).filter(alert => alert.alarmOn === true).slice(0,3);
+                data.AlertMetrics = await AlertActions.alertMetrics();
                 setData(data);
             } catch (error) {
                 console.error("Failed to fetch dashboard data:", error);
@@ -85,40 +87,41 @@ export default function DashScreen(){
     }
 
     const alertsTitle = Data.Alerts.length > 0
-        ? `${Data.Alerts.length} alarmes actif: ${Data.Alerts.map(alert => alert.type).join(', ')}`
+        ? `${Data.Alerts.length} alarmes actif`
         : "aucune alarmes";
 
-    return(
-        <View style={globalStyles.container}>
-            <Card title={alertsTitle}>
+
+    const renderMainContent = () => (
+        <View style={[globalStyles.container, {paddingBottom: 20}]}>
+            <View style={{ flexGrow: 0}}>
+            <Text style={[globalStyles.title, {marginVertical: 10, marginLeft: 15}]}>{alertsTitle}</Text>
                 <FlatList
                     data={Data.Alerts}
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={(item) => item._id.toString()}
                     renderItem={({ item }) => (
-                    <View style={[
-                        globalStyles.inlineContainer,
-                        { borderColor: Data.Alerts.length > 0  ? '#FF3B30' : COLORS.secondary }
-                    ]}>
+                        <Card >
 
-                        <Text style={globalStyles.body}> ⚠️ {item.type} - {item.status} - {formatToTime(item.startedOn)} </Text>
-                    </View>
+                            <Text style={globalStyles.body}>
+                                ⚠️ {item.type} - {item.sensor.type} - {item.sensor.location.name} - {formatToTime(item.startedOn)}
+                            </Text>
+
+                        </Card>
                     )}
+                    ItemSeparatorComponent={() => <View style={{ width: 0 }} />}
                     contentContainerStyle={globalStyles.horizontalScrollPadding}
 
                 />
-            </Card>
             {Data.Alerts.length > 0 ?
                 <TextButton
-                onPress={() => navigation.navigate('Sensors')}
+                onPress={() => navigation.navigate('Alarm')}
                 text="Plus de details"
             /> : null}
+            </View>
 
 
-
-
-            <View style={globalStyles.contentContainer}>
+            <View style={[globalStyles.contentContainer]}>
             <Text style={[globalStyles.title, {paddingHorizontal: 20}]}>Capteurs Actifs</Text>
                 {Data.Sensor.length > 0
                     ? <TouchableSensorList data={Data.Sensor} screen="Sensor Detail"  />
@@ -126,8 +129,24 @@ export default function DashScreen(){
                 }
             </View>
 
+            <View style={[globalStyles.cardContainer, {paddingHorizontal: 16}]}>
+                <Text style={[globalStyles.title, {paddingVertical: 8}]}>{`Alert History (${daysBack} jours)`}</Text>
+
+                <AlertHistoryGraph data={Data.AlertMetrics} />
+                </View>
         </View>
 
+    )
+
+    return(
+
+    <FlatList
+        data={['main_content']}
+        keyExtractor={(item) => item}
+        style={[globalStyles.container]}
+        contentContainerStyle={globalStyles.scrollViewContent}
+        renderItem={renderMainContent}
+    />
     );
 }
 
