@@ -1,9 +1,9 @@
 import React from 'react';
 import {Text, Platform, KeyboardAvoidingView} from 'react-native';
 import {globalStyles} from "../../styles";
-import {useNavigation} from "@react-navigation/native";
+import {StackActions, useNavigation} from "@react-navigation/native";
 import {AuthContext} from "../../context/AuthContext";
-import {Card} from "../../components/Card";
+import {Card, LoadingCard} from "../../components/Card";
 import { InputEmail } from "../../components/InputBoxes";
 import {AppButton, TextButton} from "../../components/AppButton";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -15,6 +15,7 @@ export default function ForgotPasswordScreen(){
     const [email, setEmail] = React.useState('');
     const [error, setError] = React.useState({});
     const [errorMessage, setErrorMessage] = React.useState(null);
+    const [loading, setLoading] = React.useState(false);
 
 
     const validateForm = () => {
@@ -32,13 +33,19 @@ export default function ForgotPasswordScreen(){
     const handleSubmit = async () => {
         if (validateForm()) {
             try {
+                setLoading(true);
                 await forgotPassword({email});
             } catch (error) {
                 setErrorMessage(error.message);
+            } finally {
+                setLoading(false);
             }
         }
     }
 
+    if (loading) {
+        return  <LoadingCard title={'Mot de passe oublie'} setLoading={setLoading}/>
+    }
 
     return(
         <SafeAreaView style={globalStyles.container}>
@@ -59,7 +66,7 @@ export default function ForgotPasswordScreen(){
                 <AppButton text={'Enregistrer'} onPress={() => handleSubmit()} />
                 <TextButton
                     text={'Retourner'}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => navigation.dispatch(StackActions.popToTop())}
                 />
             </Card>
             </KeyboardAvoidingView>

@@ -31,7 +31,7 @@ export default function ProfileScreen(){
 
 
     if (loading) {
-        return <View><ActivityIndicator size="large"></ActivityIndicator></View>;
+        return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator size="large"></ActivityIndicator></View>;
     }
 
     const updatedDate = profileData?.user?.updatedAt ? new Date(profileData?.user?.updatedAt) : null;
