@@ -1,6 +1,8 @@
 import React from "react";
-import {View, TouchableOpacity, Text} from "react-native";
+import {View, TouchableOpacity, Text, ActivityIndicator} from "react-native";
 import {globalStyles} from "../styles";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {TextButton} from "./AppButton";
 
 export function TouchableCard({title, children, onPress, color}) {
     /**
@@ -11,13 +13,12 @@ export function TouchableCard({title, children, onPress, color}) {
      */
     return (
         <View style={globalStyles.cardContainer}>
-            <Text style={globalStyles.title}>
-                {title}
-            </Text>
             <TouchableOpacity onPress={onPress}
                               style={[
                                   globalStyles.card,
                                   color && {backgroundColor: color}]}>
+                {title && <Text style={globalStyles.title}>{title}</Text>}
+
                 {children}
             </TouchableOpacity>
         </View>
@@ -31,9 +32,25 @@ export function Card({title, children}) {
      */
     return (
         <View style={globalStyles.cardContainer}>
-            <Text style={globalStyles.title}>{title}</Text>
-            <View style={globalStyles.card}>{children}</View>
+            {title && <Text style={globalStyles.title}>{title}</Text>}
+            <View style={globalStyles.card}>
+                {children}
+            </View>
 
         </View>
     )
 }
+
+export function LoadingCard({title, setLoading}) {
+    return(
+    <SafeAreaView style={globalStyles.container}>
+        <Card title={title}>
+            <Text style={[globalStyles.Header3, {alignSelf: 'center'}]}>Veuillez patienter...</Text>
+            <ActivityIndicator size="large" style={{padding: 50}}></ActivityIndicator>
+            <TextButton
+                text={'Retourner'}
+                onPress={() => setLoading(false)}
+            />
+        </Card>
+    </SafeAreaView>
+    )}
