@@ -70,10 +70,20 @@ async function resolveAlert(req, res, next) {
             return res.status(409).json({ message: "Alert is already resolved" });
         }
 
-        alert.status = "RESOLVED";
-        await alert.save();
+        const updatedAlert = await Alert.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: "RESOLVED",
+                resolvedBy: req.user.id,
+                alarmOn: false,
+                resolvedAt: new Date(),
 
-        res.json({ alert });
+            },
+            { new: true }
+        );
+
+        res.json({ alert: updatedAlert });
+
     } catch (err) {
         next(err);
     }

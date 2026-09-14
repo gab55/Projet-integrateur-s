@@ -111,7 +111,7 @@ export default function DashScreen(){
             </Card>
             {Data.Alerts.length > 0 ?
                 <TextButton
-                onPress={() => navigation.navigate('Sensors')}
+                onPress={() => navigation.navigate('Alarm')}
                 text="Plus de details"
             /> : null}
 
