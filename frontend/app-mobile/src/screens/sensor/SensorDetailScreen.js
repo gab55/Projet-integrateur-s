@@ -77,7 +77,7 @@ export default function SensorDetailScreen() {
         }
     };
 
-    const RenderHeader = () => (
+    const renderHeader = () => (
         <View style={globalStyles.contentContainer}>
             {!confirmationVisible && (
                 <Card title={`Capteur: ${sensor._id}`}>
@@ -113,7 +113,7 @@ export default function SensorDetailScreen() {
         </View>
     );
 
-    const RenderFooter = () => (
+    const renderFooter = () => (
         <View style={globalStyles.contentContainer}>
             <TextButton
                 text={'Retourner'}
@@ -128,10 +128,10 @@ export default function SensorDetailScreen() {
             <FlatList
                 data={sensorHistory}
                 keyExtractor={(item) => item?._id?.toString() || Math.random().toString()}
-                ListHeaderComponent={RenderHeader}
+                ListHeaderComponent={renderHeader()}
+                ListFooterComponent={renderFooter()}
 
                 renderItem={({ item }) => {
-
                     return (
                     <Card>
                         <Text style={globalStyles.Header3}>{formatDateTime(item.recordedAt)}</Text>
@@ -140,7 +140,6 @@ export default function SensorDetailScreen() {
                     </Card>
                     )
                 }}
-                ListFooterComponent={RenderFooter}
                 contentContainerStyle={globalStyles.scrollContainer}
             />
         </View>

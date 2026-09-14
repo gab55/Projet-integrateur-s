@@ -10,9 +10,9 @@ export const RootNavigator = createNativeStackNavigator({
     groups: {
         LoggedIn: {
             if: useIsSignedIn,
-            initialRouteName: 'Home',
+            initialRouteName: 'DrawerNavigator',
             screens: {
-                Home: {
+                DrawerNavigator: {
                     screen: DrawerNavigator,
                     options: { headerShown: false },
                 },
