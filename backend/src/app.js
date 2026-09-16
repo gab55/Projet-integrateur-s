@@ -21,6 +21,11 @@ app.get('/',(req,res) =>{
 app.use("/api/auth", authRoutes);
 app.use("/api/sensors", sensorRoutes);
 
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(400).json({ message: err.message });
+});
+
 
 
 module.exports = app;
