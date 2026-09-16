@@ -31,6 +31,14 @@ const AlertSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    startedOn: {
+        type: Date,
+        default: Date.now,
+    },
+    resolvedAt: {
+        type: Date,
+        default: null,
+    },
   },
   {
     timestamps: true,
