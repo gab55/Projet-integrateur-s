@@ -28,7 +28,7 @@ export function TouchableSensorList({ data, screen, RenderHeader=null }) {
                         </View>
                         <View style={globalStyles.infoColumn}>
                             <Text style={globalStyles.Header3}>{`Capteur: ${item.type} - Modèle: ${item.model}`}</Text>
-                            <Text style={globalStyles.body}>{`Emplacement: ${item.location}`}</Text>
+                            <Text style={globalStyles.body}>{`Emplacement: ${item.location.name}`}</Text>
                         </View>
                     </View>
                 </TouchableCard>

@@ -20,14 +20,15 @@ export const globalStyles = StyleSheet.create({
     // Layout Templates
     container: {
         flex: 1,
-        justifyContent: 'space-between',
         backgroundColor: COLORS.background,
     },
     contentContainer: {
         flex: 1,
         marginTop: 10,
-        justifyContent: 'flex-start',
-        alignContent: "flex-start"
+        gap: 10,
+    },
+    Gap: {
+        height: 10,
     },
     infoContainer: {
         flex: 1,
@@ -42,7 +43,7 @@ export const globalStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         padding: 0,
-        paddingHorizontal: 25,
+        paddingHorizontal: 15,
         alignSelf: 'stretch',
     },
     inlineContainer: {
@@ -75,18 +76,22 @@ export const globalStyles = StyleSheet.create({
         borderWidth: 1,
         borderColor: COLORS.secondary,
         borderRadius: 12,
-        padding: 16,
+        padding: 8,
         marginVertical: 8,
         minWidth: Dimensions.get('window').width * 0.4,
         height: 'auto',
         alignSelf: 'stretch',
-        // Shadow template for iOS
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        // Shadow template for Android
         elevation: 3,
+    },
+    Chart: {
+        marginVertical: 0,
+        borderRadius: 12,
+        paddingHorizontal: 12,
+
     },
     modal: {
         flex: 1,
@@ -104,7 +109,8 @@ export const globalStyles = StyleSheet.create({
         paddingBottom: 20
     },
     horizontalScrollPadding: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 6,
+
     },
     rowContainer: {
         flexDirection: 'row',

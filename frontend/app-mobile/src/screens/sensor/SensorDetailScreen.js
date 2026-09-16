@@ -8,6 +8,9 @@ import {Card} from "../../components/Card";
 import {AppButton, TextButton} from "../../components/AppButton";
 import {InputNip} from "../../components/InputBoxes";
 import {formatDateTime} from "../../components/utils";
+import {AlertHistoryGraph} from "../../components/Graph";
+import {useAlertActions} from "../../context/AlertContext";
+
 
 
 export default function SensorDetailScreen() {
@@ -16,12 +19,16 @@ export default function SensorDetailScreen() {
     const {sensors} = useSensor();
     const navigation = useNavigation();
     const SensorActions = useSensorActions();
+    const AlertActions = useAlertActions();
 
     const [confirmationVisible, setConfirmationVisible] = useState(false);
     const [pin, setPin] = useState('');
     const [loading, setLoading] = useState(false);
     const [sensorHistory, setSensorHistory] = useState([]);
     const [historyLoading, setHistoryLoading] = useState(true);
+
+    const [graphData, setGraphData] = useState(null);
+    const [daysBack, setDaysBack] = useState(7);
 
     const sensor = sensors.find((s) => s?._id?.toString() === id?.toString());
 
@@ -32,7 +39,9 @@ export default function SensorDetailScreen() {
             try {
                 setHistoryLoading(true);
                 const historyData = await SensorActions.sensorHistory(sensor._id);
+                const graphData = await AlertActions.alertMetrics(daysBack);
                 setSensorHistory(historyData?.readings || historyData?.Readings || []);
+                setGraphData(graphData);
             } catch (error) {
                 console.error("Failed to load history metrics:", error);
             } finally {
@@ -77,18 +86,18 @@ export default function SensorDetailScreen() {
         }
     };
 
-    const RenderHeader = () => (
+    const renderHeader = () => (
         <View style={globalStyles.contentContainer}>
             {!confirmationVisible && (
                 <Card title={`Capteur: ${sensor._id}`}>
-                <View style={globalStyles.columnContainer}>
+
                     <Text style={[globalStyles.body, {color: !sensor.armed ? 'red' : 'green'}]}>
                         Status: {sensor.armed ? 'Active' : 'Inactive'} {loading && "(Mise à jour...)"}
                     </Text>
                     <Text style={globalStyles.body}>Type: {sensor.type}</Text>
                     <Text style={globalStyles.body}>Modele: {sensor.model}</Text>
-                    <Text style={globalStyles.body}>Emplacement: {sensor.location}</Text>
-                </View>
+                    <Text style={globalStyles.body}>Emplacement: {sensor.location?.name}</Text>
+
                 <AppButton text={sensor.armed ? "Disarm System" : "Arm System"}
                            onPress={() => setConfirmationVisible(true)}/>
             </Card>
@@ -102,6 +111,7 @@ export default function SensorDetailScreen() {
                     <AppButton text="Confirm" onPress={handleConfirmation} loading={loading}/>
                     <AppButton text="Annuler" onPress={() => {
                         setConfirmationVisible(false);
+                        setPin('');
                         setLoading(false)
                     }
                     } loading={loading}/>
@@ -113,14 +123,40 @@ export default function SensorDetailScreen() {
         </View>
     );
 
-    const RenderFooter = () => (
+
+
+
+    const renderFooter = () => {
+
+        let alertCount = 0;
+        if (graphData) {
+            for (const [key, value] of Object.entries(graphData)) {
+                if (value.sensorId.toString() === sensor?._id.toString()) {
+                    alertCount += value.count;
+                }
+            }
+        }
+
+        return (
         <View style={globalStyles.contentContainer}>
+
+            <View style={[globalStyles.cardContainer, {paddingHorizontal: 16}]}>
+                <Text style={[globalStyles.title, {paddingTop: 8}]}>{`Historique Alertes de ce capteur`}</Text>
+                <Text style={[globalStyles.body, {
+                    paddingBottom: 12,
+                    paddingHorizontal: 20
+                }]}>{`Il y a ${alertCount} alertes sur les ${daysBack} derniers jours`}</Text>
+
+                <AlertHistoryGraph data={graphData} sensors={[sensor._id]}/>
+            </View>
+
             <TextButton
                 text={'Retourner'}
                 onPress={() => navigation.dispatch(StackActions.popToTop())}
             />
-            </View>
-    )
+        </View>
+        )
+    }
 
 
     return (
@@ -128,10 +164,10 @@ export default function SensorDetailScreen() {
             <FlatList
                 data={sensorHistory}
                 keyExtractor={(item) => item?._id?.toString() || Math.random().toString()}
-                ListHeaderComponent={RenderHeader}
+                ListHeaderComponent={renderHeader()}
+                ListFooterComponent={renderFooter()}
 
                 renderItem={({ item }) => {
-
                     return (
                     <Card>
                         <Text style={globalStyles.Header3}>{formatDateTime(item.recordedAt)}</Text>
@@ -140,7 +176,6 @@ export default function SensorDetailScreen() {
                     </Card>
                     )
                 }}
-                ListFooterComponent={RenderFooter}
                 contentContainerStyle={globalStyles.scrollContainer}
             />
         </View>

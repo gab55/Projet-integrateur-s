@@ -10,6 +10,7 @@
     "test": "jest --no-cache"
   },
   "dependencies": {
+    "@expo/ui": "~57.0.18",
     "@react-native-community/datetimepicker": "^9.2.0",
     "@react-native-firebase/app": "^26.4.0",
     "@react-native-firebase/messaging": "^26.4.0",
@@ -24,7 +25,7 @@
     "@react-navigation/stack": "^7.10.22",
     "axios": "^1.20.0",
     "date-fns": "^4.4.0",
-    "expo": "^57.0.19",
+    "expo": "^57.0.23",
     "expo-asset": "~57.0.16",
     "expo-constants": "~57.0.17",
     "expo-device": "~57.0.1",
@@ -36,6 +37,7 @@
     "react-datepicker": "^9.1.0",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
+    "react-native-chart-kit": "^7.0.4",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-maps": "^1.29.1",
