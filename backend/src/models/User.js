@@ -34,6 +34,13 @@ const UserSchema = new mongoose.Schema(
             required: true,
             select: false,
         },
+        loginAttempts: {
+            type: Number,
+            default: 0,
+        },
+        lockedUntil: {
+            type: Date,
+            default: null,
         nipHash: {
             type: String,
             required: true,
