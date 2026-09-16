@@ -1,11 +1,11 @@
 
 import React, {useState} from 'react';
-import { Text, KeyboardAvoidingView, Platform } from 'react-native';
+import {Text, KeyboardAvoidingView, Platform} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {globalStyles} from "../../styles";
-import {useNavigation} from "@react-navigation/native";
+import {useNavigation, StackActions} from "@react-navigation/native";
 import {useAuth} from "../../context/AuthContext";
-import {Card} from "../../components/Card";
+import {Card, LoadingCard} from "../../components/Card";
 import {InputEmail, InputName, InputNip, InputPassword} from "../../components/InputBoxes";
 import {AppButton, TextButton } from "../../components/AppButton";
 
@@ -13,6 +13,11 @@ import {AppButton, TextButton } from "../../components/AppButton";
 export default function RegisterScreen(){
     const { signUp } = useAuth();
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        setLoading(false);
+    }, []);
 
     const navigation = useNavigation();
 
@@ -66,11 +71,18 @@ export default function RegisterScreen(){
     const handleSubmit = async () => {
         if (validateRegisterForm()) {
             try {
+                setLoading(true);
                 await signUp(formData);
+                setLoading(false);
             } catch (serverError) {
-                setErrorMessage({ server: `${serverError.message}` });
+                setErrorMessage(serverError.message || "Une erreur est survenue");
+                setLoading(false);
             }
         }
+    }
+
+    if (loading) {
+        return  <LoadingCard title={'Register'} setLoading={setLoading}/>
     }
 
     return(
@@ -128,7 +140,7 @@ export default function RegisterScreen(){
                 <AppButton text={'Enregistrer'} onPress={handleSubmit} />
                 <TextButton
                     text={'Retourner'}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => navigation.dispatch(StackActions.popToTop())}
                 />
             </Card>
 
