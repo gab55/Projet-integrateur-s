@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Devoir4",
-    "slug": "Devoir4",
+    "name": "Projet-intégrateur-s",
+    "slug": "projet-integrateur-s",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Devoir4"
+      "bundleIdentifier": "com.anonymous.Projet-intégrateur-s"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,10 +22,20 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Devoir4"
+      "package": "com.anonymous.Projet-intégrateur-s"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-asset"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e88792e2-46fb-421a-8c09-91b5d9912ea4"
+      }
+    },
+    "owner": "gab5s-team"
   }
 }
