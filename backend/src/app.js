@@ -8,18 +8,24 @@ const app = express();
 
 const authRoutes = require("./routes/auth.routes");
 const sensorRoutes = require("./routes/sensor.routes");
+const alertRoutes = require("./routes/alert.routes");
 
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+    console.log(`Incoming Request: ${req.method} ${req.url}`);
+    next();
+});
 
-app.get('/',(req,res) =>{
-    res.send("Test sur le serveur");
-})
+// app.get('/',(req,res) =>{
+//     res.send("Test sur le serveur");
+// })
 
 
 
 app.use("/api/auth", authRoutes);
 app.use("/api/sensors", sensorRoutes);
+app.use("/api/alerts", alertRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.message);

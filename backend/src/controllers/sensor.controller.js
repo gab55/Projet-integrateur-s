@@ -1,12 +1,38 @@
 const Sensor = require("../models/Sensor");
 const SensorReading = require("../models/SensorReading");
+const authService = require("../services/auth.service");
+const Users = require("../models/User");
+
+
+async function registerSensor(req, res, next){
+  let sensor = {type, model, location, armed} = req.body
+  result =  await Sensor.create({sensor});
+  if (!result) {
+    return res.status(404).json({message: "Sensor not found"});
+  }
+  return res.status(201).json({result});
+}
+
+
+
+async function getSensors(req, res, next){
+  try {
+    result = await Sensor.find().lean().exec();
+    return res.status(201).json(result);
+  } catch (err) {
+    return next(err);
+  }
+}
 
 async function arm(req, res, next) {
   try {
     const { code } = req.body;
+    const userId = req.user.id;
 
-    if (code !== process.env.ARM_CODE) {
-      return res.status(401).json({ message: "Invalid code" });
+    const valid = await authService.validateNip({userId, nip: code});
+
+    if (!valid) {
+      return res.status(403).json({ message: "Invalid code" });
     }
 
     const sensor = await Sensor.findById(req.params.id);
@@ -21,8 +47,6 @@ async function arm(req, res, next) {
     sensor.armed = true;
     await sensor.save();
 
-    console.log(`[${new Date().toISOString()}] Sensor ${sensor.id} armed`);
-
     res.json({ sensor });
   } catch (err) {
     next(err);
@@ -32,9 +56,11 @@ async function arm(req, res, next) {
 async function disarm(req, res, next) {
   try {
     const { code } = req.body;
+    const userId = req.user.id;
+    const valid = await authService.validateNip({userId, nip: code});
 
-    if (code !== process.env.ARM_CODE) {
-      return res.status(401).json({ message: "Invalid code" });
+    if (!valid) {
+      return res.status(403).json({ message: "Invalid code" });
     }
 
     const sensor = await Sensor.findById(req.params.id);
@@ -48,8 +74,6 @@ async function disarm(req, res, next) {
 
     sensor.armed = false;
     await sensor.save();
-
-    console.log(`[${new Date().toISOString()}] Sensor ${sensor.id} disarmed`);
 
     res.json({ sensor });
   } catch (err) {
@@ -104,5 +128,5 @@ async function getHistory(req, res, next) {
   }
 }
 
-module.exports = { arm, disarm, status, addReading, getHistory };
+module.exports = { arm, disarm, status, addReading, getHistory, registerSensor, getSensors };
 
