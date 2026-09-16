@@ -1,4 +1,4 @@
-import {AppState, FlatList, ScrollView, Text, View} from 'react-native';
+import {AppState, FlatList, Text, View} from 'react-native';
 import {globalStyles} from "../../styles";
 import React, {useEffect, useState} from 'react';
 import {settings} from "../../../config";
@@ -130,7 +130,7 @@ export default function DashScreen(){
             </View>
 
             <View style={[globalStyles.cardContainer, {paddingHorizontal: 16}]}>
-                <Text style={[globalStyles.title, {paddingVertical: 8}]}>{`Alert History (${daysBack} jours)`}</Text>
+                <Text style={[globalStyles.title, {paddingVertical: 8}]}>{`Alert Trends (${daysBack} jours)`}</Text>
 
                 <AlertHistoryGraph data={Data.AlertMetrics} />
                 </View>
