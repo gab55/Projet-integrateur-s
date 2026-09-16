@@ -1,8 +1,8 @@
 const Sensor = require("../models/Sensor");
 const SensorReading = require("../models/SensorReading");
 const authService = require("../services/auth.service");
-const Users = require("../models/User");
-
+const LocationPermission = require("../models/LocationPermissions");
+const Location = require("../models/Location");
 
 async function registerSensor(req, res, next){
   let sensor = {type, model, location, armed} = req.body
@@ -13,12 +13,25 @@ async function registerSensor(req, res, next){
   return res.status(201).json({result});
 }
 
-
-
 async function getSensors(req, res, next){
   try {
-    result = await Sensor.find().lean().exec();
-    return res.status(201).json(result);
+    const { id: userId, role: userRole } = req.user;
+    let query = {};
+    if (userRole !== "ADMIN") {
+      const allowedPermissions = await LocationPermission.find({ userId }).lean();
+      const allowedLocationIds = allowedPermissions
+          .filter(p => p && p.locationId)
+          .map(p => p.locationId.toString());
+
+      query = { location: { $in: allowedLocationIds } };
+    }
+    const sensors = await Sensor.find(query)
+        .populate('location', 'name')
+        .lean()
+        .exec();
+
+    return res.status(201).json(sensors);
+
   } catch (err) {
     return next(err);
   }
@@ -129,4 +142,3 @@ async function getHistory(req, res, next) {
 }
 
 module.exports = { arm, disarm, status, addReading, getHistory, registerSensor, getSensors };
-

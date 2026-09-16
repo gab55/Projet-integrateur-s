@@ -11,14 +11,15 @@ const SensorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    location: {
-      type: String,
-      required: true,
-    },
     armed: {
       type: Boolean,
       default: false,
     },
+    location: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Location',
+        required: true
+    }
   },
   {
     timestamps: true,

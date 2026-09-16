@@ -1,7 +1,8 @@
 const Alert = require("../models/Alert");
 const Sensor = require("../models/Sensor");
 const authService = require("../services/auth.service");
-const Users = require("../models/User");
+const LocationPermission = require("../models/LocationPermissions");
+const Location = require("../models/Location");
 
 async function newAlert(req, res, next){
     try {
@@ -21,16 +22,41 @@ async function newAlert(req, res, next){
 }
 
 async function getAlerts(req, res, next){
-    let result;
     try {
-        result = await Alert
-            .find()
+        const { id: userId, role: userRole } = req.user;
+        let alertQuery = {};
+
+        if (userRole !== "ADMIN") {
+            const allowedPermissions = await LocationPermission.find({ userId }).lean();
+            const allowedLocationIds = allowedPermissions
+                .filter(p => p && p.locationId)
+                .map(p => p.locationId.toString());
+
+            const allowedSensors = await Sensor.find({ location: { $in: allowedLocationIds } }).select('_id').lean();
+            const allowedSensorIds = allowedSensors.map(s => s._id);
+
+            alertQuery = { sensor: { $in: allowedSensorIds } };
+        }
+
+
+        const alertsHistory = await Alert.find(alertQuery)
             .sort({ alarmOn: -1, startedOn: -1 })
-            .populate('resolvedBy')
+            .populate('resolvedBy', 'firstName name email')
+            .populate({
+                path: 'sensor',
+                select: 'name model locationId type',
+                populate: {
+                    path: 'location',
+                    model: 'Location',
+                    select: 'name'
+                }
+            })
             .lean()
             .exec();
 
-        return res.status(201).json(result);
+
+        return res.status(201).json(alertsHistory);
+
     } catch (err) {
         return next(err);
     }

@@ -62,13 +62,13 @@ export default function AlertDetailScreen(){
                 <View style={globalStyles.contentContainer}>
 
                     <Card title={`Alerte: ${alert._id}`}>
-
                             <Text style={[globalStyles.body, {color: alert.alarmOn ? 'red' : 'green'}]}>
                                 Status: {alert.status} {loading && "(Mise à jour...)"}
                             </Text>
                             <Text style={globalStyles.body}>Type: {alert.type}</Text>
                             <Text style={globalStyles.body}>Debut le {formatDateTime(alert.startedOn)}</Text>
                             <Text style={globalStyles.body}>Message: {alert.message}</Text>
+                        <View style={globalStyles.Gap}></View>
                             { alert.alarmOn && (
                                 <AppButton
                                     text={"Résoudre l'alerte"}

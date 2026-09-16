@@ -9,7 +9,6 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function SensorListScreen(){
     const { sensors, isLoading } = useSensor();
-    const navigation = useNavigation();
     const actions = useSensorActions();
     const [refreshing, setRefreshing] = useState(false);
 
@@ -38,7 +37,6 @@ export default function SensorListScreen(){
             </View>
         );
     };
-
     return(
         <SafeAreaView style={globalStyles.container}>
 

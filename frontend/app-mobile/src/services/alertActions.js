@@ -15,6 +15,18 @@ export const createAlertActions= (dispatch) => {
                 dispatch({ type: 'FETCH_ALERTS_ERROR' });
             }
         },
+
+        alertMetrics: async (daysBack) => {
+            try {
+                const response = await api.get(`/metrics/hourly`, {
+                    params: { days: daysBack }
+                });
+
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching alert metrics:', error);
+            }
+        },
         alertDetail: async (alarmId) => {
             try {
                 const response = await api.get(`/alerts/${alarmId}`);
