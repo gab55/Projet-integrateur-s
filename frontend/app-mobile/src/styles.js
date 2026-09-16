@@ -20,14 +20,15 @@ export const globalStyles = StyleSheet.create({
     // Layout Templates
     container: {
         flex: 1,
-        justifyContent: 'space-between',
         backgroundColor: COLORS.background,
     },
     contentContainer: {
         flex: 1,
-        marginTop: 40,
-        justifyContent: 'flex-start',
-        alignContent: "flex-start"
+        marginTop: 10,
+        gap: 10,
+    },
+    Gap: {
+        height: 10,
     },
     infoContainer: {
         flex: 1,
@@ -35,29 +36,39 @@ export const globalStyles = StyleSheet.create({
         width: '100%',
 
     },
+    scrollContainer: {
+        paddingBottom: 30,
+    },
     cardContainer: {
         justifyContent: 'center',
         alignItems: 'flex-start',
-        padding: 15,
+        padding: 0,
+        paddingHorizontal: 15,
         alignSelf: 'stretch',
-        height: "auto",
-
     },
     inlineContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 4,
-        minHeight: 44,
+
     },
-    rowContainer: {
+    listItemContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 16,
         paddingHorizontal: 20,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: '#ccc',
+        gap: 16,
+        backgroundColor: '#fff',
+    },
+    columnContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        gap: 16,
         backgroundColor: '#fff',
     },
     card: {
@@ -65,18 +76,57 @@ export const globalStyles = StyleSheet.create({
         borderWidth: 1,
         borderColor: COLORS.secondary,
         borderRadius: 12,
-        padding: 16,
+        padding: 8,
         marginVertical: 8,
         minWidth: Dimensions.get('window').width * 0.4,
         height: 'auto',
         alignSelf: 'stretch',
-        // Shadow template for iOS
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        // Shadow template for Android
         elevation: 3,
+    },
+    Chart: {
+        marginVertical: 0,
+        borderRadius: 12,
+        paddingHorizontal: 12,
+
+    },
+    modal: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        padding: 20
+    },
+    circle: {
+        width: 40,
+        height: 40,
+        borderRadius: 40 / 2,
+    },
+
+    listPadding: {
+        paddingBottom: 20
+    },
+    horizontalScrollPadding: {
+        paddingHorizontal: 6,
+
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        width: '100%'
+    },
+    statusColumn: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 15,
+        minWidth: 60
+    },
+    infoColumn: {
+        flex: 1,
+        justifyContent: 'center'
     },
 
     // Typography Templates
@@ -168,5 +218,5 @@ export const globalStyles = StyleSheet.create({
         padding: 12,
         fontSize: 16,
         marginBottom: 12,
-    }
+    },
 });

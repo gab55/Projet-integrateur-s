@@ -1,6 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import React, {createContext, useState, useContext, useMemo, useEffect} from 'react';
+import React, { useMemo, useEffect} from 'react';
 import {globalStyles} from "./styles";
 import {Navigation} from "./navigators/RootNavigator"
 import { AuthContext, SignInContext, authReducer, initialAuthState } from './context/AuthContext';
@@ -9,9 +8,14 @@ import { createAuthActions } from "./services/authActions";
 import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
 import { setOnUnauthorizedHandler } from "./api/apiClient";
 
+
 export default function App(factory, deps) {
     // Reducer
     const [state, dispatch] = React.useReducer(authReducer, initialAuthState);
+
+    // Notifications
+    // const token = useNotifications();
+
 
     useEffect(() => {
         setOnUnauthorizedHandler(() => {
@@ -21,6 +25,7 @@ export default function App(factory, deps) {
             setOnUnauthorizedHandler(null);
         }
     }, [dispatch]);
+
 
     // bootstrap ou restore token
     useAuthBootstrap(dispatch)
@@ -53,11 +58,3 @@ export default function App(factory, deps) {
     );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

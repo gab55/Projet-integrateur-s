@@ -1,23 +1,15 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, } from 'react-native';
-import {
-    createDrawerNavigator,
-    createDrawerScreen,
-} from '@react-navigation/drawer';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import HistoryScreen from "../screens/history/HistoryScreen";
 import StatScreen from "../screens/statistics/StatScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
-import SettingScreen from "../screens/settings/SettingScreen";
+import SettingScreen from "../screens/settings/SettingsScreen";
 import ContactScreen from "../screens/various/ContactScreen";
 import {DashTab} from "./DashTabNavigator";
 import { globalStyles, COLORS } from "../styles";
 import { useWindowDimensions } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Lucide from "@react-native-vector-icons/lucide";
 import Octicons from '@react-native-vector-icons/octicons';
-import {useNavigation} from "@react-navigation/native";
-
 
 
 export const DrawerNavigator = createDrawerNavigator({
@@ -32,17 +24,17 @@ export const DrawerNavigator = createDrawerNavigator({
             fontFamily: globalStyles.Header3.fontFamily,
 
         },
-        defaultScreen: 'DashBoard',
+        defaultScreen: 'Home',
         drawerType: 'slide',
         drawerStyle: {
             backgroundColor: COLORS.white,
         }
     },
     screens: {
-        DashBoard: {
+        Home: {
             screen: DashTab,
             options: {
-                drawerIcon: () => { return(<Lucide name="layout-dashboard" color="#000" size={24} />)},}
+                drawerIcon: () => { return(<Octicons name="home" color="#000" size={24} />)},}
         },
 
         Historique: {
