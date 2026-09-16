@@ -40,7 +40,7 @@ export default function AlertDetailScreen(){
         setLoading(true);
         try {
             if (alert.alarmOn || alert.status !== "RESOLVED") {
-                await AlertActions.resolveAlert(alert._id, pin);
+                await AlertActions.resolveAlert({alarmId: id, pin: pin});
                 Alert.alert("Success", "Alert resolved successfully!");
             } else {
                 Alert.alert("This is awkward", "Alert already exists!");
@@ -48,7 +48,7 @@ export default function AlertDetailScreen(){
             setConfirmationVisible(false);
             setPin('');
         } catch (error) {
-            console.error(error);
+            console.error(error.message);
             Alert.alert("Failed", "Verify your security code.");
         } finally {
             setLoading(false);

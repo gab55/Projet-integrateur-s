@@ -65,13 +65,14 @@ export const createAlertActions= (dispatch) => {
                 throw error;
             }
         },
-        resolveAlert: async ({alarmId , nip}) => {
+        resolveAlert: async ({alarmId, pin}) => {
             /**
              * resolve Alarm
-             * @param {string} alarmId - the id of the alert
+             * @param {string} alarmId
+             * @param {string} nip
              **/
             try {
-                const response = await api.post(`/alerts/${alarmId}/resolve`, {nip});
+                const response = await api.post(`/alerts/${alarmId}/resolve`, {code: pin});
                 return response.data;
             } catch (error) {
                 console.error('Erreur lors de la résolution de l\'alarme:', error.message);

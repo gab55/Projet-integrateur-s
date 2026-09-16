@@ -79,16 +79,20 @@ async function getOneAlert(req, res, next){
 
 async function resolveAlert(req, res, next) {
     try {
-        const { code } = req.body;
+        const code = req.body.code;
         const userId = req.user.id;
+
         const valid = await authService.validateNip({userId, nip: code});
 
         if (!valid) {
+            console.error("Invalid code");
             return res.status(403).json({ message: "Invalid code" });
         }
 
-        const alert = await Alert.findById(req.params.id);
+        const alertId = req.params.alertId || req.params.id;
+        const alert = await Alert.findById(alertId);
         if (!alert) {
+            console.error("Alert not found");
             return res.status(404).json({ message: "Alert not found" });
         }
 

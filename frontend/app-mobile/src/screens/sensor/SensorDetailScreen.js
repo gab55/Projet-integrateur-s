@@ -79,7 +79,7 @@ export default function SensorDetailScreen() {
             setConfirmationVisible(false);
             setPin('');
         } catch (error) {
-            console.error(error);
+            console.error(error.message);
             Alert.alert("Failed", "Verify your security code.");
         } finally {
             setLoading(false);
