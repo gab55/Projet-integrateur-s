@@ -1,0 +1,35 @@
+systeme_alarm:
+  refresh_ms: 2000
+
+sensor:
+  pir_motion_sensor: 4
+
+
+gpio:
+  red_led_pin:  5
+  green_led_pin: 22
+
+  blink_ms_alert: 250
+  active_buzzer: 27
+
+  r1_keypad: 12 
+  r2_keypad: 16
+  r3_keypad: 20 
+  r4_keypad: 21
+
+  c1_keypad: 26 
+  c2_keypad: 19 
+  c3_keypad: 13 
+  c4_keypad: 6 
+
+  sda_i2c_lcd: SDA1
+  scl_i2c_lcd: SCL1
+
+acces:
+  password: "1234A"
+
+logging:
+  level: INFO                               # Type de log: INFO, DEBUG, WARNING, ERROR
+  file: "logs/systeme_alarm.log"            # Fichier de log
+  console: true                             # Permet d'afficher dans le terminal
+
