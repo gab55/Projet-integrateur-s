@@ -8,6 +8,11 @@ const AlertSchema = new mongoose.Schema(
       ref: "Classification",
       required: true,
     },
+    sensor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Sensor",
+        required: true,
+    },
     type: {
       type: String,
       required: true,
@@ -31,6 +36,14 @@ const AlertSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    startedOn: {
+        type: Date,
+        default: Date.now,
+    },
+    resolvedAt: {
+        type: Date,
+        default: null,
+    },
   },
   {
     timestamps: true,
@@ -49,6 +62,7 @@ AlertSchema.methods.resolve = function (userId) {
   this.status = "RESOLVED";
   this.resolvedBy = userId;
   this.alarmOn = false;
+  this.resolvedAt = Date.now();
 };
 
 module.exports = mongoose.model("Alert", AlertSchema);

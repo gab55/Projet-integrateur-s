@@ -1,17 +1,18 @@
-import React from 'react';
-import {View, StyleSheet, Button, Switch, Text, Platform, KeyboardAvoidingView} from 'react-native';
+import React, {useState} from 'react';
+import { StyleSheet, Text, Platform, KeyboardAvoidingView} from 'react-native';
 import {globalStyles} from "../../styles";
 import {AuthContext, useAuth} from "../../context/AuthContext";
 import {useNavigation} from "@react-navigation/native";
 import { AppButton, TextButton } from '../../components/AppButton';
-import { Card } from '../../components/Card';
+import {Card, LoadingCard} from '../../components/Card';
 import { InputEmail, InputPassword } from "../../components/InputBoxes";
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {SafeAreaView} from "react-native-safe-area-context";
 
 
 export default function LoginScreen(){
     const { signIn } = React.useContext(AuthContext);
+    const [loading, setLoading] = useState(false);
+
     const navigation = useNavigation();
     const [formData, setFormData] = React.useState({
         email: '',
@@ -42,11 +43,18 @@ export default function LoginScreen(){
     const handleSubmit = async () => {
         if (validateLoginForm()) {
             try {
+                setLoading(true);
                 await signIn(formData);
+                setLoading(false);
             } catch (error) {
                 setErrorMessage(error.message);
+                setLoading(false);
             }
         }
+    }
+
+    if (loading) {
+        return  <LoadingCard title={'login'} setLoading={setLoading}/>
     }
 
     return(
