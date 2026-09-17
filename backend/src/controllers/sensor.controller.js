@@ -97,11 +97,33 @@ async function getHistory(req, res, next) {
       return res.status(404).json({ message: "Sensor not found" });
     }
 
-    const readings = await SensorReading.find({ sensor: sensor.id })
-      .sort({ recordedAt: -1 })
-      .limit(50);
+    const { from, to, page = 1, limit = 50 } = req.query;
 
-    res.json({ readings });
+    const filter = { sensor: sensor.id };
+    if (from || to) {
+      filter.recordedAt = {};
+      if (from) filter.recordedAt.$gte = new Date(from);
+      if (to) filter.recordedAt.$lte = new Date(to);
+    }
+
+    const skip = (page - 1) * limit;
+
+    const readings = await SensorReading.find(filter)
+      .sort({ recordedAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await SensorReading.countDocuments(filter);
+
+    res.json({
+      readings,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (err) {
     next(err);
   }
