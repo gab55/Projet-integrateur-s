@@ -41,10 +41,6 @@ const UserSchema = new mongoose.Schema(
         lockedUntil: {
             type: Date,
             default: null,
-        nipHash: {
-            type: String,
-            required: true,
-            select: false,
         },
     },
       {

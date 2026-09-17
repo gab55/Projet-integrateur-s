@@ -1,11 +1,13 @@
 const Sensor = require("../models/Sensor");
 const SensorReading = require("../models/SensorReading");
+const { logAction } = require("../services/log.service");
 
 async function arm(req, res, next) {
   try {
     const { code } = req.body;
 
     if (code !== process.env.ARM_CODE) {
+      await logAction("WARNING", `Invalid arm code attempt on sensor ${req.params.id}`);
       return res.status(401).json({ message: "Invalid code" });
     }
 
@@ -21,7 +23,7 @@ async function arm(req, res, next) {
     sensor.armed = true;
     await sensor.save();
 
-    console.log(`[${new Date().toISOString()}] Sensor ${sensor.id} armed`);
+    await logAction("INFO", `Sensor ${sensor.id} armed`);
 
     res.json({ sensor });
   } catch (err) {
@@ -34,6 +36,7 @@ async function disarm(req, res, next) {
     const { code } = req.body;
 
     if (code !== process.env.ARM_CODE) {
+      await logAction("WARNING", `Invalid disarm code attempt on sensor ${req.params.id}`);
       return res.status(401).json({ message: "Invalid code" });
     }
 
@@ -49,7 +52,7 @@ async function disarm(req, res, next) {
     sensor.armed = false;
     await sensor.save();
 
-    console.log(`[${new Date().toISOString()}] Sensor ${sensor.id} disarmed`);
+    await logAction("INFO", `Sensor ${sensor.id} disarmed`);
 
     res.json({ sensor });
   } catch (err) {
