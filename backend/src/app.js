@@ -8,6 +8,10 @@ const app = express();
 
 const authRoutes = require("./routes/auth.routes");
 const sensorRoutes = require("./routes/sensor.routes");
+const logRoutes = require("./routes/log.routes");
+const { logAction } = require("./services/log.service");
+
+
 
 app.use(cors());
 app.use(express.json());
@@ -20,8 +24,10 @@ app.get('/',(req,res) =>{
 
 app.use("/api/auth", authRoutes);
 app.use("/api/sensors", sensorRoutes);
+app.use("/api/logs", logRoutes);
 
 app.use((err, req, res, next) => {
+  logAction("ERROR", err.message);
   console.error(err.message);
   res.status(400).json({ message: err.message });
 });
