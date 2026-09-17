@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { logAction } = require("./log.service");
 
 const COST_BCRYPT = 10;
 const secretKey = process.env.JWT_SECRET;
@@ -25,6 +26,7 @@ async function login({ email, password }) {
 
   if (user.lockedUntil && user.lockedUntil > new Date()) {
     const minutesLeft = Math.ceil((user.lockedUntil - new Date()) / 60000);
+    await logAction("WARNING", `Login attempt on locked account: ${email}`);
     throw new Error(`Account locked. Try again in ${minutesLeft} minute(s).`);
   }
 
@@ -34,6 +36,9 @@ async function login({ email, password }) {
     user.loginAttempts += 1;
     if (user.loginAttempts >= 3) {
       user.lockedUntil = new Date(Date.now() + 5 * 60 * 1000);
+      await logAction("WARNING", `Account locked after 3 failed attempts: ${email}`, user._id);
+    } else {
+      await logAction("INFO", `Failed login attempt (${user.loginAttempts}/3): ${email}`, user._id);
     }
     await user.save();
     throw new Error("Invalid identifiers");
@@ -42,6 +47,8 @@ async function login({ email, password }) {
   user.loginAttempts = 0;
   user.lockedUntil = null;
   await user.save();
+
+  await logAction("INFO", `Successful login: ${email}`, user._id);
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
@@ -56,4 +63,4 @@ async function verify(token) {
   return jwt.verify(token, secretKey);
 }
 
-module.exports = { register, login, verify };
+module.exports = { register, login, verify }; 
