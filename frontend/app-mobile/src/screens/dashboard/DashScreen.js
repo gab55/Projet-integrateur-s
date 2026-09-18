@@ -12,7 +12,6 @@ import {TextButton} from "../../components/AppButton";
 import {formatToTime} from "../../components/utils";
 import {AlertHistoryGraph} from "../../components/Graph";
 
-
 export default function DashScreen(){
     const [Data, setData] = useState({ Sensor: [], Alarm: [] });
 
@@ -90,8 +89,15 @@ export default function DashScreen(){
         ? `${Data.Alerts.length} alarmes actif`
         : "aucune alarmes";
 
-
-    const renderMainContent = () => (
+    const renderMainContent = () => {
+        const metricsArray = Data.AlertMetrics?.data || [];
+        let alertCount = 0;
+        if (metricsArray) {
+            for (const [key, value] of Object.entries(metricsArray)) {
+                alertCount += value.count;
+            }
+        }
+        return (
         <View style={[globalStyles.container, {paddingBottom: 20}]}>
             <View style={{ flexGrow: 0}}>
             <Text style={[globalStyles.title, {marginVertical: 10, marginLeft: 15}]}>{alertsTitle}</Text>
@@ -130,13 +136,20 @@ export default function DashScreen(){
             </View>
 
             <View style={[globalStyles.cardContainer, {paddingHorizontal: 16}]}>
-                <Text style={[globalStyles.title, {paddingVertical: 8}]}>{`Alert Trends (${daysBack} jours)`}</Text>
+                <Text style={[globalStyles.title, {paddingVertical: 8}]}>{`Alert Trends`}</Text>
+                <Text style={[globalStyles.body, {
+                    paddingBottom: 12,
+                    paddingHorizontal: 20
+                }]}>
+                    {`Il y a ${alertCount} alertes sur les ${daysBack} derniers jours`}
+                </Text>
 
                 <AlertHistoryGraph data={Data.AlertMetrics} />
                 </View>
         </View>
+        )
+    }
 
-    )
 
     return(
 

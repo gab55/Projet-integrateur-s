@@ -1,6 +1,3 @@
-systeme_alarm:
-  refresh_ms: 2000
-
 sensor:
   pir_motion_sensor: 4
 

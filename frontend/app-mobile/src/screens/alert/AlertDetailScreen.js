@@ -3,8 +3,8 @@ import {globalStyles} from '../../styles';
 import {SafeAreaView} from "react-native-safe-area-context";
 import {Card} from "../../components/Card";
 import {AppButton, TextButton} from "../../components/AppButton";
-import React, { useState } from 'react';
-import {StackActions, useNavigation, useRoute} from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
+import {StackActions, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import { Text, View, Alert } from 'react-native';
 import {InputNip} from "../../components/InputBoxes";
 import {formatDateTime} from "../../components/utils";
@@ -54,6 +54,17 @@ export default function AlertDetailScreen(){
             setLoading(false);
         }
     };
+
+    // Reset on blur
+    useFocusEffect(
+        useCallback(() => {
+
+            return () => {
+                setConfirmationVisible(false);
+                setPin('');
+            };
+        }, [setConfirmationVisible, setPin])
+    );
 
 
     return (

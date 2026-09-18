@@ -41,6 +41,7 @@ async function getAlerts(req, res, next){
 
         const alertsHistory = await Alert.find(alertQuery)
             .sort({ alarmOn: -1, startedOn: -1 })
+            .limit(50)
             .populate('resolvedBy', 'firstName name email')
             .populate({
                 path: 'sensor',
