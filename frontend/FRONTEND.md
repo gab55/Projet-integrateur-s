@@ -45,6 +45,12 @@ npx jest --no-cache
 
 ```
 
+build
+```aiignore
+npx expo prebuild --platform android --clean
+npx expo run:android
+```
+
 ## Addresses API
 
 les requêtes sont envoyées au serveur à l'adresse de base http://{address_ip_serveur}:3000/api

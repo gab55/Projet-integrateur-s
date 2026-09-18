@@ -3,7 +3,7 @@ import {globalStyles} from '../../styles';
 import {SafeAreaView} from "react-native-safe-area-context";
 import {Card} from "../../components/Card";
 import {AppButton, TextButton} from "../../components/AppButton";
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {StackActions, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import { Text, View, Alert } from 'react-native';
 import {InputNip} from "../../components/InputBoxes";
@@ -20,9 +20,25 @@ export default function AlertDetailScreen(){
     const [confirmationVisible, setConfirmationVisible] = useState(false);
     const [pin, setPin] = useState('');
     const [loading, setLoading] = useState(false);
+    const [localAlert, setLocalAlert] = useState(null);
+    const [fetching, setFetching] = useState(false);
+
+    useEffect(() => {
+        const hasAlert = alerts.some((s) => s?._id?.toString() === id?.toString());
+        if (!hasAlert) {
+            AlertActions.alertList();
+        }
+    }, [id, alerts]);
 
     const alert = alerts.find((s) => s?._id?.toString() === id?.toString());
 
+    if (loading && !alert) {
+        return (
+            <SafeAreaView style={globalStyles.container}>
+                <Text style={globalStyles.body}>Chargement de l'alerte...</Text>
+            </SafeAreaView>
+        );
+    }
 
     if (!alert) {
         return (
