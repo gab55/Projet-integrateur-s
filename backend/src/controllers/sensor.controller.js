@@ -73,7 +73,7 @@ async function arm(req, res, next) {
 
 async function disarm(req, res, next) {
   try {
-    const { code } = req.body;
+    const code = req.body.code;
     const userId = req.user.id;
     const valid = await authService.validateNip({userId, nip: code});
 
@@ -91,12 +91,17 @@ async function disarm(req, res, next) {
       return res.status(409).json({ message: "Sensor is already disarmed" });
     }
 
-    sensor.armed = false;
-    await sensor.save();
+    const updatedSensor = await Sensor.findByIdAndUpdate(
+        req.params.id,
+        {
+          armed: false
+        },
+        { new: true }
+    );
 
     await logAction("INFO", `Sensor ${sensor.id} disarmed`);
+    res.json({ sensor: updatedSensor });
 
-    res.json({ sensor });
   } catch (err) {
     next(err);
   }
