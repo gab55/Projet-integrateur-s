@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, Platform, KeyboardAvoidingView} from 'react-native';
+import { StyleSheet, Text, Platform, KeyboardAvoidingView, ScrollView} from 'react-native';
 import {globalStyles} from "../../styles";
 import {AuthContext, useAuth} from "../../context/AuthContext";
 import {useNavigation} from "@react-navigation/native";
@@ -63,25 +63,30 @@ export default function LoginScreen(){
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={globalStyles.contentContainer}
             >
-            <Card title={'Connexion'}>
-                <Text style={globalStyles.caption}>Courriel</Text>
-                <InputEmail value={formData.email}
-                            onChangeText={value => handleInputChange('email', value)}
-                            placeholder={'Courriel'} />
-                { error.email && <Text style={globalStyles.error}>{error.email}</Text>}
+                <ScrollView 
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <Card title={'Connexion'}>
+                        <Text style={globalStyles.caption}>Courriel</Text>
+                        <InputEmail value={formData.email}
+                                    onChangeText={value => handleInputChange('email', value)}
+                                    placeholder={'Courriel'} />
+                        { error.email && <Text style={globalStyles.error}>{error.email}</Text>}
 
-                <Text style={globalStyles.caption}>Mot de Passe</Text>
-                <InputPassword value={formData.password}
-                               onChangeText={value => handleInputChange('password', value)}
-                               placeholder={'Mot de Passe'} />
-                { error.password && <Text style={globalStyles.error}>{error.password}</Text>}
-                {errorMessage && <Text style={globalStyles.error}>{errorMessage}</Text>}
-                <AppButton text={'Connexion'} onPress={() => handleSubmit()} />
+                        <Text style={globalStyles.caption}>Mot de Passe</Text>
+                        <InputPassword value={formData.password}
+                                    onChangeText={value => handleInputChange('password', value)}
+                                    placeholder={'Mot de Passe'} />
+                        { error.password && <Text style={globalStyles.error}>{error.password}</Text>}
+                        {errorMessage && <Text style={globalStyles.error}>{errorMessage}</Text>}
+                        <AppButton text={'Connexion'} onPress={() => handleSubmit()} />
 
-                <TextButton text={'Mot de Passe Oublie'} onPress={() => navigation.navigate('ForgotPassword')}/>
-                <TextButton text={'Register'} onPress={() => navigation.navigate('Register')}
-                />
-            </Card>
+                        <TextButton text={'Mot de Passe Oublie'} onPress={() => navigation.navigate('ForgotPassword')}/>
+                        <TextButton text={'Register'} onPress={() => navigation.navigate('Register')}
+                        />
+                    </Card>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );

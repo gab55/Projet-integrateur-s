@@ -3,4 +3,13 @@ packages:
   - 'app-web'
   - 'packages/*'
 allowBuilds:
+  '@firebase/util': true
   esbuild: true
+  protobufjs: true
+minimumReleaseAgeExclude:
+  - '@expo/cli@57.0.26'
+  - expo-asset@57.0.18
+  - expo-constants@57.0.19
+  - expo-notifications@57.0.20
+  - expo@57.0.24
+  - '@expo/ui@57.0.19'
