@@ -20,19 +20,19 @@ class RPiController {
       if (!building_id) {
         return res.status(400).json({ error: "building_id est requis" });
       }
-      
+
       // Vérifier que le building existe
       const building = await Building.findOne({ building_id });
       if (!building) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: "Bâtiment non trouvé",
           building_id
         });
       }
-      
+
       // Créer et mettre à jour le status du RPi
       let rpiStatus = await RPiStatus.findOne({ building_id });
-      
+
       if (!rpiStatus) {
         rpiStatus = new RPiStatus({
           building_id,
@@ -58,7 +58,7 @@ class RPiController {
         rpiStatus.timestamp = new Date();
         console.log(`RPiStatus mis à jour pour ${building_id}`);
       }
-      
+
       await rpiStatus.save();
       
       return res.status(200).json({
@@ -89,9 +89,9 @@ class RPiController {
       if (!building_id) {
         return res.status(400).json({ error: 'building_id est requis' });
       }
-      
+
       const rpiStatus = await RPiStatus.findOne({ building_id });
-      
+
       if (!rpiStatus) {
         return res.status(404).json({
           error: "RPi status pas trouvé",
@@ -103,8 +103,8 @@ class RPiController {
       const now = new Date();
       const lastUpdate = new Date(rpiStatus.timestamp);
       const secondsAgo = Math.floor((now - lastUpdate) / 1000);
-      
-      
+
+
       return res.status(200).json({
         building_id,
         data: {

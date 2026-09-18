@@ -3,7 +3,7 @@ const router = express.Router();
 const alarmController = require('../controllers/alarm.controller');
 const { verifyToken } = require('../middlewares/auth.middleware');
 
-router.post('/arm', verifyToken, (req, res) => 
+router.post('/arm', verifyToken, (req, res) =>
   alarmController.armSystem(req, res)
 );
 
