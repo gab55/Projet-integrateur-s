@@ -5,6 +5,7 @@ import {DrawerNavigator} from './DrawerNavigator';
 import {LoginStack} from "./LoginStack";
 import {globalStyles} from "../styles";
 import ProfileScreen from "../screens/profile/ProfileScreen";
+import AlertDetailScreen from "../screens/alert/AlertDetailScreen";
 
 export const RootNavigator = createNativeStackNavigator({
     groups: {
@@ -19,6 +20,10 @@ export const RootNavigator = createNativeStackNavigator({
                 Profile: {
                     screen: ProfileScreen,
                     options: { headerShown: false },
+                },
+                AlertDetailScreen: {
+                    screen: AlertDetailScreen,
+                    options: { title: 'Détails de l\'alerte' },
                 }
             }
         },

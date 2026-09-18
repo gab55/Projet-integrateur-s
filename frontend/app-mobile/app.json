@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Projet-intégrateur-s",
-    "slug": "projet-integrateur-s",
+    "name": "projetintegrateurs",
+    "slug": "projetintegrateurs",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -14,16 +14,16 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Projet-intégrateur-s"
+      "bundleIdentifier": "com.anonymous.projetintegrateurs",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "package": "com.anonymous.projetintegrateurs",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "package": "com.yourname.app"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Projet-intégrateur-s"
+        "backgroundColor": "#ffffff"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,8 +31,10 @@
     "plugins": [
       "expo-status-bar",
       "expo-asset",
-      "expo-notifications"
-    ],
+      "expo-notifications",
+      "@react-native-firebase/app"
+      ],
+
     "extra": {
       "eas": {
         "projectId": "e88792e2-46fb-421a-8c09-91b5d9912ea4"

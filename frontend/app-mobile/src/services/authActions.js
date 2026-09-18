@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import api from '../api/apiClient';
-
+import {registerForPushNotifications} from "./notificationService";
 
 export const createAuthActions= (dispatch) => {
     const actions = {
@@ -34,6 +34,8 @@ export const createAuthActions= (dispatch) => {
 
 
                 dispatch({ type: 'SIGN_IN', token: json.token})
+
+                await registerForPushNotifications();
             }
             catch (error) {
                 const errorMessage = error.response?.data?.message || "Identifiant ou mot de passe incorrect";

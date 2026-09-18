@@ -6,9 +6,6 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {useSensor} from "../context/SensorContext";
 import {formatDateTime} from "./utils";
 
-
-
-
 export function TouchableSensorList({ data, screen, RenderHeader=null }) {
     const navigation = useNavigation();
     return (
