@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "modules"))  # Ajoute le dossier module au chemin
+sys.path.insert(0, 'src')
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent / "modules"))
 
 # Importations
 import RPi.GPIO as GPIO
@@ -13,6 +15,7 @@ from gpio_adapter import Alarm, MotionSensor, Keypad, I2C_screen
 from model import Switch_State, Controle_Acces, KeypadController
 from logs import setup_logging_from_cfg
 from pattern_learning import PIRPatternLearner
+from services.status_reporter import init_status_reporter, get_status_reporter
 
 # Charger le config.yaml
 def load_config():
@@ -33,8 +36,7 @@ except:
 time.sleep(0.5)
 GPIO.setmode(GPIO.BCM)
 
-# Permet d'initialiser les composants du changement d'état, l'écran I2C, le motion sensor
-# du mot de passe, de l'alarme, du clavier et de l'accès
+# Initialiser les composants
 system_state = Switch_State()
 logging.debug("Système initialisé")
 
@@ -53,18 +55,24 @@ logging.debug("Clavier initialisé")
 acces = Controle_Acces(config["acces"]["password"])
 logging.debug("Contrôle d'accès initialisé")
 
+# Initialiser status reporter
+status_reporter = init_status_reporter(
+    building_id="bld_123",  
+    backend_url="http://192.168.2.11:3000",  
+    api_key="your_api_key_here"  
+)
+logging.info("Status reporter initialisé")
+
 pattern_learner = PIRPatternLearner()
 logging.info("Pattern Learner initialisé")
 
 state = {
     "last_pattern_calculation": datetime.now(),
-    "pattern_calculation_interval" : 3600     # Aux heures
+    "pattern_calculation_interval": 3600
 }
-
 
 screen.display_message("Le systeme est prêt")
 logging.info("Le systeme est prêt")
-
 
 keypad_controller = KeypadController(alarm, screen, acces, system_state)
 logging.debug("Le contrôlleur a été créé")
@@ -78,6 +86,10 @@ def handle_motion_detection():
         if hasattr(motion_sensor, 'motion_detected'):
             motion = motion_sensor.motion_detected
 
+            status_reporter = get_status_reporter()
+            status_reporter.update_gpio_state('motion', motion)
+            status_reporter.update_gpio_state('system_armed', system_state.is_armed)
+
             pattern_learner.add_motion_reading(motion, datetime.now())
 
             current_hour = datetime.now().hour
@@ -88,19 +100,21 @@ def handle_motion_detection():
                 pattern=pattern,
                 armed=system_state.is_armed
             ):
-                logging.warning("Mouvement anormal détecté dans les heures calmes!")
+                logging.warning("Mouvement anormal détecté!")
+                status_reporter.update_gpio_state('buzzer', True)
+                status_reporter.update_gpio_state('led_red', True)
 
     except Exception as e:
         logging.debug(f"handle_motion_detection: {e}")
 
 
-
-
-
 def main():
-    # Boucle principale du programme
-
     try:
+        status_reporter = get_status_reporter()
+
+        status_reporter.update_gpio_state('motion', motion_sensor.motion_detected if hasattr(motion_sensor, 'motion_detected') else False)
+        status_reporter.update_gpio_state('system_armed', system_state.is_armed)
+
         state_system = "ARMÉ" if system_state.is_armed else "DÉSARMÉ"
         alarm_state = "ACTIVÉ" if system_state.is_alarming else "DÉSACTIVÉ"
 
@@ -119,20 +133,21 @@ def main():
 
     except Exception as e:
         logging.error(f"Erreur dans la boucle: {e}")
-        print(f"Erreur: {e}")
 
 
 if __name__ == "__main__":
-    main()
-
     try:
         while True:
             main()
-            time.sleep(0.1)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         screen.cleanup()
         alarm.cleanup()
+        
+        status_reporter = get_status_reporter()
+        status_reporter.stop_auto_send()
+        
         GPIO.cleanup()
 
         logging.info("Affichage du résumé des patterns:")
@@ -140,5 +155,3 @@ if __name__ == "__main__":
 
         print("Programme arrêté")
         logging.info("SYSTEME D'ALARME ARRÊTÉ")
- 
-
