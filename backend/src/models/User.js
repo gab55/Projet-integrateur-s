@@ -42,6 +42,11 @@ const UserSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        nipHash: {
+            type: String,
+            required: true,
+            select: false,
+        },
     },
       {
     timestamps: true,
