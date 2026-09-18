@@ -10,17 +10,13 @@ const sensorRoutes = require("./routes/sensor.routes");
 const logRoutes = require("./routes/log.routes");
 const alertRoutes = require("./routes/alert.routes");
 const metricsRoutes = require("./routes/metrics.routes");
+const permissionsRoutes = require("./routes/permissions.routes");
+const alarmRoutes = require("./routes/alarm.routes");
+const rpiRoutes = require("./routes/rpi.routes");
+
 
 const { logAction } = require("./services/log.service");
 
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
-        console.log("MongoDB connecté");
-    })
-    .catch(err => {
-        console.error("Erreur MongoDB:", err);
-        process.exit(1);
-    });
 
 app.use(cors());
 app.use(express.json());
@@ -29,16 +25,13 @@ app.use((req, res, next) => {
     next();
 });
 
-const sensorRoutes = require("./routes/sensor.routes");
-const alarmRoutes = require('./routes/alarm.routes');
-const rpiRoutes = require('./routes/rpi.routes');
 app.use("/api/auth", authRoutes);
 app.use("/api/logs", logRoutes);
 
-app.use("/api/metrics", metricsRoutes)
+app.use("/api/metrics", metricsRoutes);
 app.use("/api/sensors", sensorRoutes);
+app.use("/api/permissions", permissionsRoutes);
 
-// deux routes et services redondants a refactorer
 app.use("/api/alerts", alertRoutes);
 app.use('/api/alarm', alarmRoutes);
 

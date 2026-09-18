@@ -47,6 +47,10 @@ const UserSchema = new mongoose.Schema(
             required: true,
             select: false,
         },
+        pushToken: {
+            type: String,
+            default: null,
+        },
     },
       {
     timestamps: true,
