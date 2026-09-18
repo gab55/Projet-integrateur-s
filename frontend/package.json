@@ -11,6 +11,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --fix"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.1.1"
   }
-
 }
