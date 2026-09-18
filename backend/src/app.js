@@ -14,16 +14,9 @@ const permissionsRoutes = require("./routes/permissions.routes");
 const alarmRoutes = require("./routes/alarm.routes");
 const rpiRoutes = require("./routes/rpi.routes");
 
+
 const { logAction } = require("./services/log.service");
 
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
-        console.log("MongoDB connecté");
-    })
-    .catch(err => {
-        console.error("Erreur MongoDB:", err);
-        process.exit(1);
-    });
 
 app.use(cors());
 app.use(express.json());
