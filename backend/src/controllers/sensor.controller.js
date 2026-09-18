@@ -1,5 +1,6 @@
 const Sensor = require("../models/Sensor");
 const SensorReading = require("../models/SensorReading");
+const { logAction } = require("../services/log.service");
 const authService = require("../services/auth.service");
 const LocationPermission = require("../models/LocationPermissions");
 const Location = require("../models/Location");
@@ -26,6 +27,7 @@ async function getSensors(req, res, next){
       query = { location: { $in: allowedLocationIds } };
     }
     const sensors = await Sensor.find(query)
+        .limit(50)
         .populate('location', 'name')
         .lean()
         .exec();
@@ -45,6 +47,7 @@ async function arm(req, res, next) {
     const valid = await authService.validateNip({userId, nip: code});
 
     if (!valid) {
+      await logAction("WARNING", `Invalid arm code attempt on sensor ${req.params.id}`);
       return res.status(403).json({ message: "Invalid code" });
     }
 
@@ -60,6 +63,8 @@ async function arm(req, res, next) {
     sensor.armed = true;
     await sensor.save();
 
+    await logAction("INFO", `Sensor ${sensor.id} armed`);
+
     res.json({ sensor });
   } catch (err) {
     next(err);
@@ -68,11 +73,12 @@ async function arm(req, res, next) {
 
 async function disarm(req, res, next) {
   try {
-    const { code } = req.body;
+    const code = req.body.code;
     const userId = req.user.id;
     const valid = await authService.validateNip({userId, nip: code});
 
     if (!valid) {
+      await logAction("WARNING", `Invalid disarm code attempt on sensor ${req.params.id}`);
       return res.status(403).json({ message: "Invalid code" });
     }
 
@@ -85,10 +91,17 @@ async function disarm(req, res, next) {
       return res.status(409).json({ message: "Sensor is already disarmed" });
     }
 
-    sensor.armed = false;
-    await sensor.save();
+    const updatedSensor = await Sensor.findByIdAndUpdate(
+        req.params.id,
+        {
+          armed: false
+        },
+        { new: true }
+    );
 
-    res.json({ sensor });
+    await logAction("INFO", `Sensor ${sensor.id} disarmed`);
+    res.json({ sensor: updatedSensor });
+
   } catch (err) {
     next(err);
   }
@@ -131,11 +144,33 @@ async function getHistory(req, res, next) {
       return res.status(404).json({ message: "Sensor not found" });
     }
 
-    const readings = await SensorReading.find({ sensor: sensor.id })
-      .sort({ recordedAt: -1 })
-      .limit(50);
+    const { from, to, page = 1, limit = 50 } = req.query;
 
-    res.json({ readings });
+    const filter = { sensor: sensor.id };
+    if (from || to) {
+      filter.recordedAt = {};
+      if (from) filter.recordedAt.$gte = new Date(from);
+      if (to) filter.recordedAt.$lte = new Date(to);
+    }
+
+    const skip = (page - 1) * limit;
+
+    const readings = await SensorReading.find(filter)
+      .sort({ recordedAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await SensorReading.countDocuments(filter);
+
+    res.json({
+      readings,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (err) {
     next(err);
   }

@@ -38,6 +38,13 @@ ou pour le mobile
 pnpm --filter app-mobile dev
 
 ```
+
+Pour les tests
+```aiignore
+npx jest --no-cache
+
+```
+
 ## Addresses API
 
 les requêtes sont envoyées au serveur à l'adresse de base http://{address_ip_serveur}:3000/api

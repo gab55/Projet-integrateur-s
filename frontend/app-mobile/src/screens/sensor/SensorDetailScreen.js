@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {StackActions, useNavigation, useRoute} from '@react-navigation/native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StackActions, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import {Text, View, Alert, FlatList} from 'react-native';
 import {useSensor, useSensorActions} from '../../context/SensorContext';
 import {globalStyles} from '../../styles';
@@ -10,8 +10,6 @@ import {InputNip} from "../../components/InputBoxes";
 import {formatDateTime} from "../../components/utils";
 import {AlertHistoryGraph} from "../../components/Graph";
 import {useAlertActions} from "../../context/AlertContext";
-
-
 
 export default function SensorDetailScreen() {
     const route = useRoute();
@@ -86,6 +84,17 @@ export default function SensorDetailScreen() {
         }
     };
 
+    // Reset on blur
+    useFocusEffect(
+        useCallback(() => {
+
+            return () => {
+                setConfirmationVisible(false);
+                setPin('');
+            };
+        }, [setConfirmationVisible, setPin])
+    );
+
     const renderHeader = () => (
         <View style={globalStyles.contentContainer}>
             {!confirmationVisible && (
@@ -119,24 +128,22 @@ export default function SensorDetailScreen() {
                 </Card>
             </View>
         )}
-            <Text style={[globalStyles.title, {paddingHorizontal: 20, paddingTop: 20}]}>Historique</Text>
         </View>
     );
 
 
-
-
-    const renderFooter = () => {
-
+    const renderMiddle = () => {
+        const metricsArray = graphData?.data || [];
         let alertCount = 0;
         if (graphData) {
-            for (const [key, value] of Object.entries(graphData)) {
+            for (const [key, value] of Object.entries(metricsArray)) {
                 if (value.sensorId.toString() === sensor?._id.toString()) {
                     alertCount += value.count;
                 }
             }
         }
 
+        // Sensor Detail Screen
         return (
         <View style={globalStyles.contentContainer}>
 
@@ -145,7 +152,9 @@ export default function SensorDetailScreen() {
                 <Text style={[globalStyles.body, {
                     paddingBottom: 12,
                     paddingHorizontal: 20
-                }]}>{`Il y a ${alertCount} alertes sur les ${daysBack} derniers jours`}</Text>
+                }]}>
+                    {`Il y a ${alertCount} alertes sur les ${daysBack} derniers jours`}
+                </Text>
 
                 <AlertHistoryGraph data={graphData} sensors={[sensor._id]}/>
             </View>
@@ -158,15 +167,18 @@ export default function SensorDetailScreen() {
         )
     }
 
-
     return (
         <View style={globalStyles.container}>
             <FlatList
                 data={sensorHistory}
                 keyExtractor={(item) => item?._id?.toString() || Math.random().toString()}
-                ListHeaderComponent={renderHeader()}
-                ListFooterComponent={renderFooter()}
-
+                ListHeaderComponent={
+                    <>
+                        {renderHeader()}
+                        {renderMiddle()}
+                        {<Text style={[globalStyles.title, {paddingHorizontal: 20, paddingTop: 20}]}>Historique</Text>}
+                    </>
+                }
                 renderItem={({ item }) => {
                     return (
                     <Card>
@@ -181,4 +193,3 @@ export default function SensorDetailScreen() {
         </View>
     );
 }
-
