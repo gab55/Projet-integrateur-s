@@ -66,9 +66,9 @@ logging.debug("Contrôle d'accès initialisé")
 
 # Initialiser status reporter pour communiquer avec le backend
 status_reporter = init_status_reporter(
-    building_id="bld_123",  
-    backend_url="http://192.168.2.11:3000", 
-    api_key="rpi_key_xyz"  
+    building_id="bld_123",
+    backend_url="http://192.168.2.11:3000",
+    api_key="rpi_key_xyz"
 )
 logging.info("Status reporter initialisé")
 
