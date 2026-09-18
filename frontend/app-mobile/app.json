@@ -32,9 +32,9 @@
       "expo-status-bar",
       "expo-asset",
       "expo-notifications",
+      "@react-native-community/datetimepicker",
       "@react-native-firebase/app"
-      ],
-
+    ],
     "extra": {
       "eas": {
         "projectId": "e88792e2-46fb-421a-8c09-91b5d9912ea4"
