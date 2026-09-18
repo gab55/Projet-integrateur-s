@@ -14,6 +14,7 @@ const { logAction } = require("./services/log.service");
 
 const alertRoutes = require("./routes/alert.routes");
 const metricsRoutes = require("./routes/metrics.routes");
+const permissionsRoutes = require("./routes/permissions.routes");
 
 app.use(cors());
 app.use(express.json());
@@ -33,6 +34,7 @@ app.use("/api/sensors", sensorRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/metrics", metricsRoutes)
+app.use("/api/permissions", permissionsRoutes);
 
 app.use((err, req, res, next) => {
   logAction("ERROR", err.message);
