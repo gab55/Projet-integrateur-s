@@ -35,7 +35,7 @@ export const createSensorActions= (dispatch) => {
                 console.error('Error fetching sensor status:', error);
             }
         },
-        armSensor: async (sensorId, pin) => {
+        armSensor: async ({sensorId, pin}) => {
             try {
                 const response = await api.post(`/sensors/${sensorId}/arm`, { code: pin });
                 dispatch({ type: 'UPDATE_SENSOR_STATUS', payload: response.data.sensor });
@@ -43,9 +43,10 @@ export const createSensorActions= (dispatch) => {
                 return response.data;
             } catch (error) {
                 console.error('Error arming sensor:', error);
+                throw error;
             }
         },
-        disarmSensor: async (sensorId, pin) => {
+        disarmSensor: async ({sensorId, pin}) => {
             try {
                 const response = await api.post(`/sensors/${sensorId}/disarm`, { code: pin });
                 dispatch({ type: 'UPDATE_SENSOR_STATUS', payload: response.data.sensor });
@@ -53,6 +54,7 @@ export const createSensorActions= (dispatch) => {
                 return response.data;
             } catch (error) {
                 console.error('Error disarming sensor:', error);
+                throw error;
             }
         },
 
