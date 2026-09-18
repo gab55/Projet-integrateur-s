@@ -26,6 +26,7 @@ async function getSensors(req, res, next){
       query = { location: { $in: allowedLocationIds } };
     }
     const sensors = await Sensor.find(query)
+        .limit(50)
         .populate('location', 'name')
         .lean()
         .exec();

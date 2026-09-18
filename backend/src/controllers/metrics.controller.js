@@ -89,6 +89,23 @@ async function getHourlyMetrics(req, res, next) {
                 }
             }
         ]);
+
+        let dateRange = { start: null, end: null, days: 0 };
+        if (metrics.length > 0) {
+            const pad = (num) => String(num).padStart(2, '0');
+            const first = metrics[0]._id;
+            const last = metrics[metrics.length - 1]._id;
+
+            dateRange.start = `${first.year}-${pad(first.month)}-${pad(first.day)}`;
+            dateRange.end = `${last.year}-${pad(last.month)}-${pad(last.day)}`;
+
+            const firstDate = new Date(dateRange.start);
+            const lastDate = new Date(dateRange.end);
+
+            dateRange.days = Math.round((lastDate - firstDate) / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+
         const formatedMetrics = metrics.map(metric => {
             const pad = (num) => String(num).padStart(2, '0');
             return {
@@ -101,7 +118,9 @@ async function getHourlyMetrics(req, res, next) {
         });
 
         formatedMetrics.sort((a, b) => a.hourLabel.localeCompare(b.hourLabel));
-        res.status(200).json(formatedMetrics);
+        res.status(200).json({
+            range: dateRange,
+            data: formatedMetrics });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -110,4 +129,3 @@ async function getHourlyMetrics(req, res, next) {
 module.exports = {
     getHourlyMetrics
 }
-

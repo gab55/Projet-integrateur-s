@@ -25,6 +25,7 @@ export function InputPassword({placeholder, onChangeText, value}) {
         value={value}
         textContentType={'password'}
         secureTextEntry={true}
+        autoCapitalize={'none'}
         style={globalStyles.textInput}
         />
     )
