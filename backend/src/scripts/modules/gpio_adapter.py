@@ -2,12 +2,21 @@ import RPi.GPIO as GPIO     # Module GPIO
 from RPLCD.i2c import CharLCD   # Module pour l'affichage
 import time     # Module de délais
 import threading    # Module pour faire des exécutions en parallèle
-import logging
+import logging      # Module pour exécuter des fonctions en parallèle
+from services.status_reporter import GPIOStatusReporter     # Module pour reporter
+from services.status_reporter import get_status_reporter    # 
+from datetime import datetime   # Module pour gérer de la date et l'heure
 
+# Initialisation statut RPi.GPIO vers backend
+gpio_reporter = GPIOStatusReporter(
+    building_id='bld_123',
+    backend_url='http://backend.local:3000',
+    api_key='rpi_key_xyz'
+)
 
 class I2C_screen:
 
-    # Classe qui affiche l'écran
+    # Classe qui affiche l'écran LCD 16x2 via I2C
 
     def __init__(self):
 
@@ -29,7 +38,7 @@ class I2C_screen:
 
     def display_message(self, ligne1, ligne2=""):
 
-        # Fonction pour afficher le message sur l'écran
+        # Fonction pour afficher le message sur l'écran (2 lignes maximum)
 
         try:
             self.lcd.clear() # Effacer avant d'afficher
@@ -56,6 +65,9 @@ class I2C_screen:
 class Alarm:
 
     # Classe qui gère les LED rouge et verte et le buzzer.
+    # LED rouge -> l'alarme est déclenchée
+    # LED verte -> système armée
+    # Buzzer -> pour le son quand l'alarme est activé 
 
     def __init__(self, config, screen=None, switch_state=None):
 
@@ -68,10 +80,6 @@ class Alarm:
         self.red_led_pin = self.gpio["red_led_pin"]     # GPIO 5
         self.green_led_pin = self.gpio["green_led_pin"]   # GPIO 22
         self.active_buzzer = self.gpio["active_buzzer"] # GPIO 27
-
-        # Vérifier que GPIO.setmode() est appelé une seule fois
-        if GPIO.getmode() is None:
-            GPIO.setmode(GPIO.BCM) # Permet d'utiliser les numéros GPIO 
 
         # Configuration de la led verte, rouge et du buzzer en sortie
         GPIO.setup(self.red_led_pin, GPIO.OUT)
@@ -99,40 +107,58 @@ class Alarm:
         if self.switch_state.is_armed:
             # Si le système est armé, on veut le désarmer
             self.switch_state.disarm()
+            # Affiche ce message sur l'écran LCD
             if self.screen:
-                self.screen.display_message("SYSTEME DESARMEE")
+                self.screen.display_message("SYSTEME", "DESARMEE")
             print("Système désarmée")
         else:
             # Si le système est désarmé, on veut l'armer
             self.switch_state.arm()
             GPIO.output(self.green_led_pin, GPIO.HIGH)
+            # Affiche ce message sur l'écran LCD
             if self.screen:
-                self.screen.display_message("SYSTEME ARMEE")
+                self.screen.display_message("SYSTEME", "ARMEE")
             print("Système armée")
 
             time.sleep(5) # Garde la led verte allumée pendant 5 secondes
 
+            # Éteint la LED verte
             GPIO.output(self.green_led_pin, GPIO.LOW)
+            # Affiche ce message sur l'écran LCD
             if self.screen:
-                self.screen.display_message("SYSTEME ARMEE")
+                self.screen.display_message("SYSTEME", "ARMEE")
 
 
     def activate(self):
 
-        # Fonction pour l'activation de l'alarme: la led rouge clignote et le buzzer bip
+        # Fonction pour l'activation de l'alarme: la led rouge clignote et le buzzer bip pendant 5 secondes
 
         self.switch_state.trigger_alarm() # L'état devient déclenchée
 
+        # Affiche ce message sur l'écran LCD
         if self.screen:
-            self.screen.display_message("ALARME DECLENCHEE!!")
+            self.screen.display_message("ALARME", "DECLENCHEE!!")
 
         start_time = time.time() # Enregistre l'heure de départ
+
+        # Récupère le statut
+        status_reporter = get_status_reporter()
 
         while time.time() - start_time < 5: # Boucle pendant 5 secondes
             # Led rouge allumée et le buzzer activé
             GPIO.output(self.red_led_pin, GPIO.HIGH)
+            status_reporter.update_gpio_state('led_red', True)
+
+            # Le buzzer activé
             GPIO.output(self.active_buzzer, GPIO.HIGH)
+            status_reporter.update_gpio_state('buzzer', True)
+
             time.sleep(0.1)
+
+            # Envoie le statut au backend
+            status_reporter.send_status_to_backend()
+            logging.info("ALARME DÉCLENCHÉE - Status envoyé au backend")
+
 
             # Led rouge éteinte et le buzzer désactivé
             GPIO.output(self.active_buzzer, GPIO.LOW)
@@ -142,14 +168,19 @@ class Alarm:
         # Après 5 secondes, led rouge et buzzer sont à OFF
         GPIO.output(self.red_led_pin, GPIO.LOW)
         GPIO.output(self.active_buzzer, GPIO.LOW)
+
         self.switch_state.stop_alarm()    # L'état de l'alarme devient arrêtée
-        
+
+        # Affiche ce message sur l'écran LCD
         if self.screen:
-            self.screen.display_message("ALARME ARRETEE! VEUILLEZ ENTRER LE CODE.")
+            self.screen.display_message("ALARME ARRETEE!", "VEUILLEZ ENTRER LE CODE.")
         logging.info("Alarme est prêt à être activée.")
+        # Affiche dans le terminal
         print("Alarme arrêtée")
 
     def cleanup(self):
+
+        # Éteint le GPIO et nettoie 
         GPIO.output(self.red_led_pin, GPIO.LOW)
         GPIO.output(self.green_led_pin, GPIO.LOW)
         GPIO.output(self.active_buzzer, GPIO.LOW)
@@ -172,37 +203,51 @@ class MotionSensor:
         self.last_state = False     # Le dernier état est à pas de mouvement
         self.state_count = 0    # Compteur
 
-        # Vérifier que GPIO.setmode() est appelé une seule fois
-        if GPIO.getmode() is None:
-            GPIO.setmode(GPIO.BCM)
-
         GPIO.setup(self.sensor_pin, GPIO.IN)    # Configuration pour lire le capteur
         logging.info(" Le capteur de détection de mouvement est initialisé")
 
         self.start_polling()    # Vérification en tout temps du capteur
+
+    def motion_detected(self):
+        # Fonction qui retourne l'état de la du détecteur de mouvement
+        return self.last_state
 
     def start_polling(self):
 
         # Fonction qui vérifie en continue le capteur de détection de mouvement
 
         def check_motion():
+
+            # Fonction dans une boucle pour surveiller le capteur de détection de mouvement
+            motion_timeout = None
+
             while True:
-                # Capteur: HIGH= mouvement et LOW= pas de mouvement
+                # Lit le capteur: HIGH= mouvement et LOW= pas de mouvement
                 current_state = GPIO.input(self.sensor_pin) == GPIO.HIGH
 
-                # Permet d'éviter les faux positifs quand on utilise le clavier
+                # Vérifie que l'état change au moins 3 fois
                 if current_state != self.last_state:    # Si l'état à changer depuis la dernière lecture faite
-                    self.state_count += 1       # Uncrémente le state_count
+                    self.state_count += 1       # Incrémente le state_count
 
                     # Permet de confirmer que l'état a été changé au moins 3 fois de suite (pas un faux positifs) 
                     if self.state_count >=3 and current_state != self.last_state:
                         self.last_state = current_state     # Pour mettre l'ancien état à jour
-                        self.callback(self.sensor_pin)   # On appelle l'action callback
+                        self.callback(self.sensor_pin, current_state) # On appelle l'action callback
+                        self.state_count = 0
+
+                        # Permet d'enregistrer ù le mouvement a été détecté
+                        if current_state:
+                            motion_timeout = datetime.now()
+
+                    else:
                         self.state_count = 0    # On réinitialise le compteur
 
-                # Si l'état est pareille que la dernière fois
-                else:
-                    self.state_count = 0 # Il n'y a pas de changement, on réinitialise le compteur
+                # Élimine les faux positifs
+                if self.last_state and motion_timeout is not None:
+                    elapsed = (datetime.now() - motion_timeout).total_seconds()
+                    if elapsed >= 10:
+                        self.last_state = False
+                        motion_timeout = None
 
                 time.sleep(0.05)    # On vérifie le capteur tous les 50 ms
 
@@ -210,11 +255,11 @@ class MotionSensor:
         thread = threading.Thread(target=check_motion, daemon=True)
         thread.start()  # On démare le thread 
 
-    def callback(self, channel):
+    def callback(self, channel, current_state):
 
         # C'est la fonction qui est appelé quand le motion sensor détecte le changement d'état
 
-        if GPIO.input(self.sensor_pin):     # Pour détecter si il y a du mouvement
+        if current_state:     # Pour détecter si il y a du mouvement
 
             # Si le système doit être armé et si l'alarme n'est pas encore activé
             if self.switch_state.is_armed and not self.switch_state.is_alarming:
@@ -223,7 +268,7 @@ class MotionSensor:
                 logging.warning("L'alarme a été déclenchée par le mouvement")
                 # Message afficher sur l'écran LCD
                 if self.screen:
-                    self.screen.display_message("MOUVEMENT DÉTECTÉ! ALARME ARMÉE")
+                    self.screen.display_message("MOUVEMENT DÉTECTÉ!", "ALARME ARMÉE")
 
                 # On déclenche l'alarme
                 self.alarm.activate()
@@ -233,7 +278,7 @@ class MotionSensor:
                 logging.info("L'alarme a été déclenchée par le mouvement(système désarmé)")
                 # Message afficher sur l'écran LCD
                 if self.screen:
-                    self.screen.display_message("MOUVEMENT DÉTECTÉ!ALARME DÉSARMÉE")
+                    self.screen.display_message("MOUVEMENT DÉTECTÉ!", "ALARME DÉSARMÉE")
         else:
             # Quand le capteur ne détecte pas de mouvement
 
@@ -258,18 +303,18 @@ class Keypad:
 
         # Les lignes sont en sortie
         self.ROW_PINS = [
-            gpio["c1_keypad"],  # ligne 0
-            gpio["c2_keypad"],  # ligne 1
-            gpio["c3_keypad"],  # ligne 2
-            gpio["c4_keypad"]   # ligne 3
+            gpio["c1_keypad"],  # ligne 0 (1,2,3,A)
+            gpio["c2_keypad"],  # ligne 1 (4,5,6,B)
+            gpio["c3_keypad"],  # ligne 2 (7,8,9,C)
+            gpio["c4_keypad"]   # ligne 3 (*,0,#,D)
         ]
 
         # Les colonnes sont en entrée
         self.COLUMN_PINS = [
-            gpio["r4_keypad"],  # colonne 0
-            gpio["r3_keypad"],  # colonne 1
-            gpio["r2_keypad"],  # colonne 2
-            gpio["r1_keypad"]   # colonne 3
+            gpio["r4_keypad"],  # colonne 0 (1,4,7,*)
+            gpio["r3_keypad"],  # colonne 1 (2,5,8,0)
+            gpio["r2_keypad"],  # colonne 2 (3,6,9,#)
+            gpio["r1_keypad"]   # colonne 3 (A,B,C,D)
         ]
 
         # C'est la matrice des touches
@@ -280,14 +325,12 @@ class Keypad:
             ["*", "0", "#", "D"]
         ]
 
-        # Vérifier que GPIO.setmode() est appelé une seule fois
-        if GPIO.getmode() is None:
-            GPIO.setmode(GPIO.BCM)
-
+        # Pour configurer les lignes
         for row in self.ROW_PINS:
             GPIO.setup(row, GPIO.OUT)   # On configure les lignes en sortie
             GPIO.output(row, GPIO.HIGH) # Les lignes sont tous à HIGH
 
+        # Pour configurer les colonnes
         for col in self.COLUMN_PINS:
             # On configure tous les colonnes à HIGH et on utilise le pull up down interne
             GPIO.setup(col, GPIO.IN, pull_up_down=GPIO.PUD_UP)
