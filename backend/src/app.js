@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -24,6 +23,7 @@ app.use((req, res, next) => {
     console.log(`Incoming Request: ${req.method} ${req.url}`);
     next();
 });
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/logs", logRoutes);
