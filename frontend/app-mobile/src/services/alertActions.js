@@ -18,8 +18,9 @@ export const createAlertActions= (dispatch) => {
 
         alertMetrics: async (daysBack) => {
             try {
+                const days = daysBack || 14;
                 const response = await api.get(`/metrics/hourly`, {
-                    params: { days: daysBack }
+                    params: { days: days }
                 });
 
                 return response.data;
