@@ -6,14 +6,19 @@ import logging      # Module pour exécuter des fonctions en parallèle
 from services.status_reporter import GPIOStatusReporter     # Module pour reporter
 from services.status_reporter import get_status_reporter    # 
 from datetime import datetime   # Module pour gérer de la date et l'heure
+import os
+from dotenv import load_dotenv
+
+backend_url = os.getenv("BACKEND_URL")
+backend_port = os.getenv("BACKEND_PORT")
+api_key = os.getenv("API_SECRET_KEY")
 
 # Initialisation statut RPi.GPIO vers backend
-gpio_reporter = GPIOStatusReporter(
-    building_id='bld_123',
-    backend_url='http://backend.local:3000',
-    api_key='rpi_key_xyz'
+status_reporter = init_status_reporter(
+    building_id="bld_123",
+    backend_url=f"http://{backend_url}:{backend_port}",
+    api_key=api_key
 )
-
 class I2C_screen:
 
     # Classe qui affiche l'écran LCD 16x2 via I2C
