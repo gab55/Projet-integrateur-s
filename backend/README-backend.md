@@ -44,6 +44,8 @@ backend/
 │   │   ├── User.js                # Comptes (avec loginAttempts, lockedUntil, pushToken)
 │   │   ├── Session.js
 │   │   ├── Sensor.js
+│   │   ├── Location.js
+│   │   ├── LocationPermission.js
 │   │   ├── SensorReading.js
 │   │   ├── Classification.js
 │   │   ├── Alert.js
@@ -52,6 +54,9 @@ backend/
 │   │   ├── auth.controller.js
 │   │   ├── sensor.controller.js
 │   │   ├── log.controller.js
+│   │   ├── alert.controller.js
+│   │   ├── metrics.controller.js
+│   │   ├── sensor.controller.js
 │   │   └── errors.js              # Gestion d'erreurs centralisée
 │   ├── services/
 │   │   ├── auth.service.js         # Inscription, connexion, verrouillage de compte
@@ -92,11 +97,24 @@ backend/
 
 | Méthode | Route | Protégée | Description |
 |---|---|---|---|
-| POST | `/api/sensors/:id/arm` | Code (`ARM_CODE`) | Arme le capteur ; refuse si déjà armé (409) |
-| POST | `/api/sensors/:id/disarm` | Code (`ARM_CODE`) | Désarme le capteur ; refuse si déjà désarmé (409) |
-| GET | `/api/sensors/:id/status` | Non | Retourne l'état actuel (`armed: true/false`) |
-| POST | `/api/sensors/:id/readings` | Non | Enregistre une nouvelle lecture du capteur |
-| GET | `/api/sensors/:id/history` | Non | Historique paginé, filtrable par date (`?page=&limit=&from=&to=`) |
+| POST | `/api/sensors/:id/new` | JWT | Ajoute un capteur |
+| POST | `/api/sensors/:id/arm` | JWT + Permission + Code (`ARM_CODE`) | Arme le capteur ; refuse si déjà armé (409) |
+| POST | `/api/sensors/:id/disarm` | JWT + Permission + Code (`ARM_CODE`) | Désarme le capteur ; refuse si déjà désarmé (409) |
+| GET | `/api/sensors/:id/status` | JWT + Permission | Retourne l'état actuel (`armed: true/false`) |
+| POST | `/api/sensors/:id/readings` | JWT + Permission | Enregistre une nouvelle lecture du capteur |
+| GET | `/api/sensors/:id/history` | JWT + Permission | Historique paginé, filtrable par date (`?page=&limit=&from=&to=`) |
+
+
+### Alertes (`/api/alerts`)
+
+| Méthode | Route | Protégée | Description |
+|---|---|---|---|
+| GET | `/api/alerts/` | JWT + Permission | Cherche pour toutes les alertes permises ; Retourne une objet de objets d'alertes (`alertHistory`) |
+| GET | `/api/alerts/:id` | JWT + Permission | Cherche une alerte spécifique ; Retourne l'objet alerte (`alert`) |
+| POST | `/api/alerts/start` | JWT + Permission | Cree une nouvelle alerte ; Retourne l'objet alerte (`alert`) |
+| POST | `/api/alerts/:id/resolve` | JWT + Permission | Change le status de l'alarme de true/false ('alert: updatedAlert') |
+| GET | `/api/alerts/:id/status` | JWT + Permission | Retourne l'état actuel (`status: true/false`) |
+
 
 ### Journalisation (`/api/logs`)
 
@@ -109,6 +127,13 @@ backend/
 | Méthode | Route | Protégée | Description |
 |---|---|---|---|
 | POST | `/api/permissions` | JWT | Enregistre le token de notification push (Expo) de l'utilisateur |
+
+
+### Metrics (`/api/permissions`)
+| Méthode | Route | Protégée | Description |
+| GET | `/api/metrics/hourly` | JWT | retourne une objet de numero de alertes par capteur par heure et metrics ('range: dateRange, data: formatedMetrics') |
+
+- GET "/hourly": Envoie des métriques horaires pour les alertes de l'utilisateur
 
 **Authentification JWT** : pour les routes protégées par token, envoyer l'en-tête `Authorization: Bearer <token>`.
 
