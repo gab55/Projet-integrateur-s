@@ -1,6 +1,6 @@
 # Projet-integrateur-s
-![CI/CD](https://img.shields.io/badge/status-active-green)
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![CI/CD](https://img.shields.io/badge/status-inactive-red)
+![Version](https://img.shields.io/badge/version-3.0.0-blue)
 ![Licence](https://img.shields.io/badge/licence-MIT-orange)
 
 **Description** :

@@ -1,6 +1,6 @@
 
 import React, {useState} from 'react';
-import {Text, KeyboardAvoidingView, Platform} from 'react-native';
+import {Text, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {globalStyles} from "../../styles";
 import {useNavigation, StackActions} from "@react-navigation/native";
@@ -91,58 +91,63 @@ export default function RegisterScreen(){
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={globalStyles.contentContainer}
             >
+                <ScrollView 
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps="handled"
+                >
 
-            <Card title={'Register'}>
-                <Text style={globalStyles.Header1}>Bienvenue a AppSecure</Text>
-                <Text style={[globalStyles.Header1, {marginBottom: 5 }]}>Inscrivez vous pour commencer</Text>
-                <Text style={[globalStyles.body, {marginBottom: 20 }]}>Seulement un peu d'informations pour s'inscrire</Text>
+                    <Card title={'Register'}>
+                        <Text style={globalStyles.Header1}>Bienvenue a AppSecure</Text>
+                        <Text style={[globalStyles.Header1, {marginBottom: 5 }]}>Inscrivez vous pour commencer</Text>
+                        <Text style={[globalStyles.body, {marginBottom: 20 }]}>Seulement un peu d'informations pour s'inscrire</Text>
 
-                <Text style={globalStyles.caption}>Surnom</Text>
-                <InputName
-                    value={formData.firstName}
-                    onChangeText={(text) => handleInputChange('firstName', text)}
-                    placeholder={'Surnom'}
-                />
-                {error.firstName && <Text style={globalStyles.error}>{error.firstName}</Text>}
+                        <Text style={globalStyles.caption}>Surnom</Text>
+                        <InputName
+                            value={formData.firstName}
+                            onChangeText={(text) => handleInputChange('firstName', text)}
+                            placeholder={'Surnom'}
+                        />
+                        {error.firstName && <Text style={globalStyles.error}>{error.firstName}</Text>}
 
-                <Text style={globalStyles.caption}>Nom</Text>
-                <InputName
-                    value={formData.name}
-                    onChangeText={(text) => handleInputChange('name', text)}
-                    placeholder={'Surnom'}
-                />
-                {error.name && <Text style={globalStyles.error}>{error.name}</Text>}
+                        <Text style={globalStyles.caption}>Nom</Text>
+                        <InputName
+                            value={formData.name}
+                            onChangeText={(text) => handleInputChange('name', text)}
+                            placeholder={'Surnom'}
+                        />
+                        {error.name && <Text style={globalStyles.error}>{error.name}</Text>}
 
-                <Text style={globalStyles.caption}>Courriel</Text>
-                <InputEmail
-                    value={formData.email}
-                    onChangeText={(text) => handleInputChange('email', text)}
-                    placeholder={'Courriel'}
-                />
-                {error.email && <Text style={globalStyles.error}>{error.email}</Text>}
+                        <Text style={globalStyles.caption}>Courriel</Text>
+                        <InputEmail
+                            value={formData.email}
+                            onChangeText={(text) => handleInputChange('email', text)}
+                            placeholder={'Courriel'}
+                        />
+                        {error.email && <Text style={globalStyles.error}>{error.email}</Text>}
 
-                <Text style={globalStyles.caption}>Mot de Passe</Text>
-                <InputPassword
-                    value={formData.password}
-                    onChangeText={(text) => handleInputChange('password', text)}
-                    placeholder={'Mot de Passe'}
-                />
-                {error.password && <Text style={globalStyles.error}>{error.password}</Text>}
+                        <Text style={globalStyles.caption}>Mot de Passe</Text>
+                        <InputPassword
+                            value={formData.password}
+                            onChangeText={(text) => handleInputChange('password', text)}
+                            placeholder={'Mot de Passe'}
+                        />
+                        {error.password && <Text style={globalStyles.error}>{error.password}</Text>}
 
-                <Text style={globalStyles.caption}>Nip</Text>
-                <InputNip
-                    value={formData.nip}
-                    onChangeText={(text) => handleInputChange('nip', text)}
-                    placeholder={'Nip'}
-                />
-                {error.nip && <Text style={globalStyles.error}>{error.nip}</Text>}
-                {errorMessage && <Text style={globalStyles.error}>{errorMessage}</Text>}
-                <AppButton text={'Enregistrer'} onPress={handleSubmit} />
-                <TextButton
-                    text={'Retourner'}
-                    onPress={() => navigation.dispatch(StackActions.popToTop())}
-                />
-            </Card>
+                        <Text style={globalStyles.caption}>Nip</Text>
+                        <InputNip
+                            value={formData.nip}
+                            onChangeText={(text) => handleInputChange('nip', text)}
+                            placeholder={'Nip'}
+                        />
+                        {error.nip && <Text style={globalStyles.error}>{error.nip}</Text>}
+                        {errorMessage && <Text style={globalStyles.error}>{errorMessage}</Text>}
+                        <AppButton text={'Enregistrer'} onPress={handleSubmit} />
+                        <TextButton
+                            text={'Retourner'}
+                            onPress={() => navigation.dispatch(StackActions.popToTop())}
+                        />
+                    </Card>
+                </ScrollView>
 
             </KeyboardAvoidingView>
         </SafeAreaView>

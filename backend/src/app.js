@@ -9,10 +9,13 @@ const sensorRoutes = require("./routes/sensor.routes");
 const logRoutes = require("./routes/log.routes");
 const alertRoutes = require("./routes/alert.routes");
 const metricsRoutes = require("./routes/metrics.routes");
-const alarmRoutes = require('./routes/alarm.routes');
-const rpiRoutes = require('./routes/rpi.routes');
+const permissionsRoutes = require("./routes/permissions.routes");
+const alarmRoutes = require("./routes/alarm.routes");
+const rpiRoutes = require("./routes/rpi.routes");
+
 
 const { logAction } = require("./services/log.service");
+
 
 app.use(cors());
 app.use(express.json());
@@ -25,10 +28,10 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/logs", logRoutes);
 
-app.use("/api/metrics", metricsRoutes)
+app.use("/api/metrics", metricsRoutes);
 app.use("/api/sensors", sensorRoutes);
+app.use("/api/permissions", permissionsRoutes);
 
-// deux routes et services redondants a refactorer
 app.use("/api/alerts", alertRoutes);
 app.use('/api/alarm', alarmRoutes);
 
