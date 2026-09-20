@@ -1,6 +1,6 @@
 # Projet-integrateur-s
 ![CI/CD](https://img.shields.io/badge/status-inactive-red)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-3.0.0_candidate-blue)
 ![Licence](https://img.shields.io/badge/licence-MIT-orange)
 
 **Description** :
@@ -30,6 +30,27 @@ Nous voulons permettre à l’utilisateur de recevoir des notifications de l’�
 La plateforme de supervision permettra une gestion technique du bâtiment (GTC) qui regroupe les données des capteurs et commande les actions des appareils en temps réel et qui affiche toutes ces informations sur un seul écran.
 
 ## Structure
+
+## Architecture
+
+### Schéma global
+```mermaid
+graph TD
+    %% Nodes
+    Front[Frontend]
+    Back[Backend]
+    Fire[Firebase]
+    db[(Mongodb)]
+    Rpi[iot]
+    
+    %% Connections
+    Front --"API (REST)"--> Back
+    Fire --Push-Notification--> Front
+    Back --"Stockage/Requetes"--> db
+    Back --"Envoie d'alerte"--> Fire
+    Rpi --"Donnes brut"--> Back
+    Rpi --"Apprentissage Patterns"--> Rpi
+    Rpi --"Classification d'événements"--> Back
 
 ```
 HEAD
@@ -255,3 +276,4 @@ graph LR
     end
 
 ```
+
