@@ -96,6 +96,17 @@ npx expo run:android
 ```
 
 ## Architecture
+
+```
+HEAD
+  |—  backend // modules backend et capteurs
+    |-  src // backend server
+      |-  scripts // les scripts pour le rpi
+  |— frontend
+    |—  app-web // pas fait (placeholder)
+    |—  app-mobile // application react native
+```
+
 ### Schéma global
 ```mermaid
 graph TD
@@ -114,16 +125,8 @@ graph TD
     Rpi --"Donnes brut"--> Back
     Rpi --"Apprentissage Patterns"--> Rpi
     Rpi --"Classification d'événements"--> Back
+```
 
-```
-HEAD
-  |—  backend // modules backend et capteurs
-    |-  src // backend server
-      |-  scripts // les scripts pour le rpi
-  |— frontend
-    |—  app-web // pas fait (placeholder)
-    |—  app-mobile // application react native
-```
 
 ## Addresses API
 
