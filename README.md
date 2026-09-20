@@ -4,10 +4,11 @@
 ![Licence](https://img.shields.io/badge/licence-MIT-orange)
 
 **Description** :
-Projet intégrateur pour la classe de AEC Internet des objets et intelligence artificielle.\
-Travail de trouver un concept a execution sur une période de temps de 4 semaines avec 3 membres.
+Pour notre cours de projet intégrateur dans notre AEC en Internet des objets et intelligence artificielle.\
+On nous a demandé de trouver un concept et le mettre à exécution sur une période de 4 semaines en équipe. Notre équipe est composée de Barbara (fullstack), Blondel Junior (backend)et Gabriel (frontend).
 
-### Table de Matières
+
+### Table des matières
 
 - [Concept](#Concept)
 - [Pour démarrer](#Pour-démarrer)
@@ -28,6 +29,10 @@ de savoir s'il y a un intrus à proximité ou dans l’édifice et de savoir s'i
 Nous voulons permettre à l’utilisateur de recevoir des notifications de l’état au besoin.
 
 La plateforme de supervision permettra une gestion technique du bâtiment (GTC) qui regroupe les données des capteurs et commande les actions des appareils en temps réel et qui affiche toutes ces informations sur un seul écran.
+
+Il y aussi un aspect iot avec des composants comme le détecteur PIR, l'écran LCD I2C, LED (rouge et vert), buzzer active, un clavier 4x4, un Raspberry Pi et l'extension GPIO. On a fait le montage physique d'un système d'alarme.
+
+Pour l'intelligence artifielle, on a décidé d'aller avec le pattern learning pour apprendre les habitudes de l'utilsateur et de savoir quand un mouvement est dans une heure calme ou une heure active.  L’objet intelligent collecte 7 jours de données sur les mouvements par heure, il calcule la fréquence en pourcentage de mouvement par heure. Il classe  les heures comme par exemple heure active ou heure calme et il détecte quand un mouvement est inattendu car il sort de l’heure active ou calme.
 
 ## Pour démarrer
 
@@ -87,13 +92,45 @@ npx expo prebuild --platform android --clean
 npx expo run:android
 ```
 
-
-
 build
 ```aiignore
 npx expo prebuild --platform android --clean
 npx expo run:android
 ```
+
+### IOT et intelligence artificielle
+```aiignore
+cd backend/src/scripts
+```
+
+Pour activer le fichier .env et installer les dépendences
+```aiignore
+# sur linux ou macos
+source venv/bin/activate
+pip install -r requirements.txt
+# sur windows
+venv\Scripts\activate
+pip install -r requirements.txt
+
+# apres il faut changer le fichier .env avec les vrais variables d'environnement
+```
+
+startup
+
+```aiignore
+python3 main.py
+```
+## Branchement IOT
+ Composant | GPIO / Broche | Fonction |
+| :--- | :--- | :--- |
+| **Détecteur PIR** | GPIO 4 | Détection de mouvement |
+| **LED Rouge** | GPIO 5 | Indique que l'alarme est déclenchée |
+| **LED Verte** | GPIO 22 | Indique que le système est armé |
+| **Buzzer Actif** | GPIO 27 | Sonne quand l'alarme est déclenchée |
+| **Écran LCD I2C** | SDA1 / SCL1 | Affiche les messages importants |
+| **Clavier 4x4** | GPIO 6 à GPIO 26 | Permet d'entrer le code PIN |
+| **Alimentation** | 3.3 V | Alimentation des composants compatibles |
+| **Ground** | Ground (GND) | Retour électrique commun |
 
 ## Architecture
 
