@@ -1,0 +1,215 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-18T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v9.0.0",
+  "resources": [
+    {
+      "_id": "wrk_projet",
+      "_type": "workspace",
+      "parentId": null,
+      "modified": 1,
+      "created": 1,
+      "name": "Projet Integrateur - Securite IoT",
+      "description": "Collection de tests API - backend securite IoT (Sprints 1 et 2)",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_projet",
+      "modified": 1,
+      "created": 1,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "token": "",
+        "admin_token": "",
+        "sensor_id": ""
+      },
+      "dataPropertyOrder": { "&": ["base_url", "token", "admin_token", "sensor_id"] },
+      "color": null,
+      "isPrivate": false
+    },
+
+    { "_id": "fld_auth", "_type": "request_group", "parentId": "wrk_projet", "modified": 1, "created": 1, "name": "1. Authentification", "environment": {}, "metaSortKey": -1000 },
+    {
+      "_id": "req_register", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "1. Inscription (register)",
+      "description": "Attendu : 201 Created, retourne l'utilisateur sans passwordHash.\nMot de passe < 8 caracteres doit retourner 400.",
+      "method": "POST", "url": "{{ _.base_url }}/api/auth/register",
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Dupont\",\n  \"firstName\": \"Jean\",\n  \"email\": \"jean.dupont@test.com\",\n  \"password\": \"motdepasse123\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -900
+    },
+    {
+      "_id": "req_register_short_pw", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "2. Inscription - mot de passe trop court (doit echouer)",
+      "description": "Attendu : 400, message 'Password needs to be more than 8 characters'.",
+      "method": "POST", "url": "{{ _.base_url }}/api/auth/register",
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Test\",\n  \"firstName\": \"Court\",\n  \"email\": \"court@test.com\",\n  \"password\": \"1234\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -850
+    },
+    {
+      "_id": "req_login", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "3. Connexion (login)",
+      "description": "Attendu : 200 OK, { token, user }. Copier le token dans la variable d'environnement 'token'.",
+      "method": "POST", "url": "{{ _.base_url }}/api/auth/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"jean.dupont@test.com\",\n  \"password\": \"motdepasse123\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -800
+    },
+    {
+      "_id": "req_login_bad", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "4. Connexion - mauvais mot de passe",
+      "description": "Attendu : 401 'Invalid identifiers'. Envoyer 3 fois de suite pour declencher le verrouillage (voir requete 5).",
+      "method": "POST", "url": "{{ _.base_url }}/api/auth/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"jean.dupont@test.com\",\n  \"password\": \"mauvaismotdepasse\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -700
+    },
+    {
+      "_id": "req_login_locked", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "5. Connexion sur compte verrouille",
+      "description": "A envoyer juste apres 3 echecs consecutifs (requete 4). Attendu : 401 'Account locked. Try again in X minute(s).'",
+      "method": "POST", "url": "{{ _.base_url }}/api/auth/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"jean.dupont@test.com\",\n  \"password\": \"mauvaismotdepasse\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -650
+    },
+    {
+      "_id": "req_me", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "6. Profil connecte (me)",
+      "description": "Attendu : 200 OK avec le profil de l'utilisateur.",
+      "method": "GET", "url": "{{ _.base_url }}/api/auth/me",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }],
+      "metaSortKey": -600
+    },
+    {
+      "_id": "req_me_no_token", "_type": "request", "parentId": "fld_auth", "modified": 1, "created": 1,
+      "name": "7. Profil sans token (doit echouer)",
+      "description": "Attendu : 401 'Missing token'.",
+      "method": "GET", "url": "{{ _.base_url }}/api/auth/me",
+      "headers": [],
+      "metaSortKey": -500
+    },
+
+    { "_id": "fld_sensors", "_type": "request_group", "parentId": "wrk_projet", "modified": 1, "created": 1, "name": "2. Capteurs", "environment": {}, "metaSortKey": -900 },
+    {
+      "_id": "req_arm", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "1. Armer le capteur",
+      "description": "Attendu : 200 OK, sensor.armed = true. Le code doit correspondre a ARM_CODE dans le .env du serveur.",
+      "method": "POST", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/arm",
+      "body": { "mimeType": "application/json", "text": "{\n  \"code\": \"1234\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -900
+    },
+    {
+      "_id": "req_arm_twice", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "2. Armer deux fois (doit echouer)",
+      "description": "A envoyer juste apres la requete precedente, sans desarmer. Attendu : 409 'Sensor is already armed'.",
+      "method": "POST", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/arm",
+      "body": { "mimeType": "application/json", "text": "{\n  \"code\": \"1234\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -800
+    },
+    {
+      "_id": "req_disarm", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "3. Desarmer le capteur",
+      "description": "Attendu : 200 OK, sensor.armed = false.",
+      "method": "POST", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/disarm",
+      "body": { "mimeType": "application/json", "text": "{\n  \"code\": \"1234\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -700
+    },
+    {
+      "_id": "req_disarm_twice", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "4. Desarmer deux fois (doit echouer)",
+      "description": "A envoyer juste apres la requete precedente. Attendu : 409 'Sensor is already disarmed'.",
+      "method": "POST", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/disarm",
+      "body": { "mimeType": "application/json", "text": "{\n  \"code\": \"1234\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -650
+    },
+    {
+      "_id": "req_arm_bad_code", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "5. Armer avec mauvais code (doit echouer)",
+      "description": "Attendu : 401 'Invalid code'.",
+      "method": "POST", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/arm",
+      "body": { "mimeType": "application/json", "text": "{\n  \"code\": \"0000\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -600
+    },
+    {
+      "_id": "req_status", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "6. Statut du capteur",
+      "description": "Attendu : 200 OK, { armed: true/false }.",
+      "method": "GET", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/status",
+      "metaSortKey": -500
+    },
+    {
+      "_id": "req_reading", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "7. Ajouter une lecture",
+      "description": "Attendu : 201 Created, retourne la lecture avec sensor, value, recordedAt, id.",
+      "method": "POST", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/readings",
+      "body": { "mimeType": "application/json", "text": "{\n  \"value\": 42\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "metaSortKey": -400
+    },
+    {
+      "_id": "req_history", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "8. Consulter l'historique",
+      "description": "Attendu : 200 OK, { readings: [...], pagination: { page, limit, total, pages } }.",
+      "method": "GET", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/history",
+      "metaSortKey": -300
+    },
+    {
+      "_id": "req_history_paginated", "_type": "request", "parentId": "fld_sensors", "modified": 1, "created": 1,
+      "name": "9. Historique - pagination et filtre par date",
+      "description": "Attendu : 200 OK, readings filtres selon from/to, pagination.limit respecte.",
+      "method": "GET", "url": "{{ _.base_url }}/api/sensors/{{ _.sensor_id }}/history?page=1&limit=2&from=2026-01-01&to=2026-12-31",
+      "metaSortKey": -250
+    },
+
+    { "_id": "fld_logs", "_type": "request_group", "parentId": "wrk_projet", "modified": 1, "created": 1, "name": "3. Journalisation (admin)", "environment": {}, "metaSortKey": -800 },
+    {
+      "_id": "req_logs_user", "_type": "request", "parentId": "fld_logs", "modified": 1, "created": 1,
+      "name": "1. Consulter les logs - role user (doit echouer)",
+      "description": "Attendu : 403 'Access denied' avec un token de role 'user'.",
+      "method": "GET", "url": "{{ _.base_url }}/api/logs",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }],
+      "metaSortKey": -900
+    },
+    {
+      "_id": "req_logs_admin", "_type": "request", "parentId": "fld_logs", "modified": 1, "created": 1,
+      "name": "2. Consulter les logs - role admin",
+      "description": "Attendu : 200 OK, tableau des 100 derniers logs, tries du plus recent au plus ancien. Necessite un token d'un compte avec role='admin' (modifiable dans MongoDB Compass).",
+      "method": "GET", "url": "{{ _.base_url }}/api/logs",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.admin_token }}" }],
+      "metaSortKey": -800
+    },
+    {
+      "_id": "req_logs_no_token", "_type": "request", "parentId": "fld_logs", "modified": 1, "created": 1,
+      "name": "3. Consulter les logs - sans token (doit echouer)",
+      "description": "Attendu : 401 'Missing token'.",
+      "method": "GET", "url": "{{ _.base_url }}/api/logs",
+      "headers": [],
+      "metaSortKey": -700
+    },
+
+    { "_id": "fld_permissions", "_type": "request_group", "parentId": "wrk_projet", "modified": 1, "created": 1, "name": "4. Notifications (permissions)", "environment": {}, "metaSortKey": -700 },
+    {
+      "_id": "req_permissions", "_type": "request", "parentId": "fld_permissions", "modified": 1, "created": 1,
+      "name": "1. Enregistrer le token de notification push",
+      "description": "Attendu : 200 OK, { success: true }. Verifier ensuite dans MongoDB Compass que l'utilisateur a bien un champ pushToken rempli.",
+      "method": "POST", "url": "{{ _.base_url }}/api/permissions",
+      "body": { "mimeType": "application/json", "text": "{\n  \"token\": \"ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]\"\n}" },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "metaSortKey": -900
+    }
+  ]
+}
