@@ -10,10 +10,10 @@ Travail de trouver un concept a execution sur une période de temps de 4 semaine
 ### Table de Matières
 
 - [Concept](#Concept)
-- [Structure](#Structure)
 - [Pour démarrer](#Pour-démarrer)
   - [Frontend](#Frontend)
   - [Backend](#Backend)
+- [Architecture](#Architecture)
 - [Addresses API](#Addresses-API)
 - [Flow Navigation](#Flow-Navigation)
 - [Structure Base de Donnees](#Structure-Base-de-Données)
@@ -28,39 +28,6 @@ de savoir s'il y a un intrus à proximité ou dans l’édifice et de savoir s'i
 Nous voulons permettre à l’utilisateur de recevoir des notifications de l’état au besoin.
 
 La plateforme de supervision permettra une gestion technique du bâtiment (GTC) qui regroupe les données des capteurs et commande les actions des appareils en temps réel et qui affiche toutes ces informations sur un seul écran.
-
-## Structure
-
-## Architecture
-
-### Schéma global
-```mermaid
-graph TD
-    %% Nodes
-    Front[Frontend]
-    Back[Backend]
-    Fire[Firebase]
-    db[(Mongodb)]
-    Rpi[iot]
-    
-    %% Connections
-    Front --"API (REST)"--> Back
-    Fire --Push-Notification--> Front
-    Back --"Stockage/Requetes"--> db
-    Back --"Envoie d'alerte"--> Fire
-    Rpi --"Donnes brut"--> Back
-    Rpi --"Apprentissage Patterns"--> Rpi
-    Rpi --"Classification d'événements"--> Back
-
-```
-HEAD
-  |—  backend // modules backend et capteurs
-    |-  src // backend server
-      |-  scripts // les scripts pour le rpi
-  |— frontend
-    |—  app-web // pas fait (placeholder)
-    |—  app-mobile // application react native
-```
 
 ## Pour démarrer
 
@@ -128,8 +95,37 @@ npx expo prebuild --platform android --clean
 npx expo run:android
 ```
 
-## Addresses API
+## Architecture
+### Schéma global
+```mermaid
+graph TD
+    %% Nodes
+    Front[Frontend]
+    Back[Backend]
+    Fire[Firebase]
+    db[(Mongodb)]
+    Rpi[iot]
+    
+    %% Connections
+    Front --"API (REST)"--> Back
+    Fire --Push-Notification--> Front
+    Back --"Stockage/Requetes"--> db
+    Back --"Envoie d'alerte"--> Fire
+    Rpi --"Donnes brut"--> Back
+    Rpi --"Apprentissage Patterns"--> Rpi
+    Rpi --"Classification d'événements"--> Back
 
+```
+HEAD
+  |—  backend // modules backend et capteurs
+    |-  src // backend server
+      |-  scripts // les scripts pour le rpi
+  |— frontend
+    |—  app-web // pas fait (placeholder)
+    |—  app-mobile // application react native
+```
+
+## Addresses API
 
 Routes Alertes:
 
