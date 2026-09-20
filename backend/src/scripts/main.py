@@ -1,6 +1,9 @@
 # Chemins python
+import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Ajouter les répertoires au chemin Python pour pouvoir importer les modules
 sys.path.insert(0, 'src')
@@ -65,10 +68,13 @@ acces = Controle_Acces(config["acces"]["password"])
 logging.debug("Contrôle d'accès initialisé")
 
 # Initialiser status reporter pour communiquer avec le backend
+backend_url = os.getenv("BACKEND_URL")
+backend_port = os.getenv("BACKEND_PORT")
+api_key = os.getenv("API_SECRET_KEY")
 status_reporter = init_status_reporter(
     building_id="bld_123",
-    backend_url="http://192.168.2.11:3000",
-    api_key="rpi_key_xyz"
+    backend_url=f"http://{backend_url}:{backend_port}",
+    api_key=api_key
 )
 logging.info("Status reporter initialisé")
 
